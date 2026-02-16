@@ -33,9 +33,22 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons, 'type' => $type]);
 	});
 
-	$router->post('/dons', function() {
+	$router->post('/dons', function() use ($app) {
 		$donController = new DonController();
-		$donController->createDon();
+		$result = $donController->createDon();
+		$controller = new StatsController();
+		$villes = $controller->getAllVilles();
+		$besoins = $controller->getAllBesoins();
+		$dons = $controller->getAllDons();
+		$type = $donController->getAlltypes();
+		$data = [ 'page' => 'Don', 'villes' => $villes, 'besoins' => $besoins, 'dons' => $dons, 'type' => $type ];
+		if (isset($result['success'])) {
+			$data['success'] = $result['success'];
+		}
+		if (isset($result['error'])) {
+			$data['error'] = $result['error'];
+		}
+		$app->render('Modal', $data);
 	});
 
 	$router->get('/besoin', [ BesoinController::class, 'showForm' ]);

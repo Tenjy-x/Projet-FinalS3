@@ -15,9 +15,12 @@ class DonController {
         $description = Flight::request()->data->description;
         $type = Flight::request()->data->type;
         $quantites = Flight::request()->data->quantites;
-        $date = Flight::request()->data->date;
         $model = new DonModel(Flight::db());
-        $model->createDon($description, $type, $quantites, $date);
-        Flight::redirect('/dons');
+        try {
+            $model->createDon($description, $type, $quantites);
+            return ['success' => 'Don ajouté avec succès !'];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de l\'ajout du don : ' . $e->getMessage()];
+        }
     }
 }

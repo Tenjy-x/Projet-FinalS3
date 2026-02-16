@@ -20,11 +20,11 @@ class DonModel
         ];
     }
 
-    public function createDon($description, $type, $quantites, $date)
+    public function createDon($description, $type, $quantites)
     {
         $sql = "INSERT INTO don (libelle_don, type_don, quantite, date_don) 
-                VALUES (?, ?, ?, ?)";
+                VALUES (?, ?, ?, CURDATE())";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$description, $type, $quantites, $date]);
+        return $stmt->execute([$description, $type, $quantites]);
     }
 }

@@ -35,10 +35,6 @@
                         <label for='quantites'>Quantités</label>
                         <input type="number" class="form-control" id="quantites" name="quantites" placeholder="Entrez la quantité du don" required>
                     </div>
-                    <div class="form-group">
-                        <label for='date'>Date du don</label>
-                        <input type="date" class="form-control" id="date" name="date" required>
-                    </div>
                     <button type="submit" class="btn btn-primary">Soumettre</button>
                 </form>
             </div>
