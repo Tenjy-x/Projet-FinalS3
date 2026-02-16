@@ -35,21 +35,10 @@ $router->group('', function(Router $router) use ($app) {
 	});
 
 	$router->get('/dispatch', function() use ($app) {
-<<<<<<< HEAD
 		$dispatchController = new DispatchController();
 		$dispatchController->dispatch();
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
 		$app->redirect('/bord');
-=======
-		$controller = new StatsController();
-		$villes = $controller->getAllVilles();
-		$besoins = $controller->getAllBesoins();
-		$dons = $controller->getAllDons();
-		$villesBesoins = $controller->getVillesBesoins();
-		$dispatchController = new DispatchController($app);
-		$dispatchResult = $dispatchController->dispatch();
-		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins, 'dispatchResult' => $dispatchResult]);
->>>>>>> 406354e (Les modfication v2 pour demain  à revoir les fonctionalité)
 	});	
 
 	$router->post('/dons', function() use ($app) {
