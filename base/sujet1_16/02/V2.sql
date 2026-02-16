@@ -93,6 +93,8 @@ CREATE TABLE config(
     cle_config VARCHAR(50) PRIMARY KEY,
     valeur_config DECIMAL(5,2) NOT NULL
 );
+
+INSERT INTO config (cle_config, valeur_config) VALUES ('frais_achat', 10.00);
 -- =========================================
 -- VIEW VILLE_BESOIN
 -- =========================================
