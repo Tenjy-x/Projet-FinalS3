@@ -1,5 +1,6 @@
 <?php
 use app\controllers\StatsController;
+use app\controllers\DispatchController;
 use app\controllers\ApiExampleController;
 use app\controllers\BesoinController;
 use app\controllers\BngrcController;
@@ -33,6 +34,16 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons, 'type' => $type]);
 	});
 
+	$router->get('/dispatch', function() use ($app) {
+		$controller = new StatsController();
+		$villes = $controller->getAllVilles();
+		$besoins = $controller->getAllBesoins();
+		$dons = $controller->getAllDons();
+		$villesBesoins = $controller->getVillesBesoins();
+		$dispatchController = new DispatchController();
+		$dispatchResult = $dispatchController->dispatch();
+		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins, 'dispatchResult' => $dispatchResult]);
+	});	
 	$router->post('/dons', function() {
 		$donController = new DonController();
 		$donController->createDon();

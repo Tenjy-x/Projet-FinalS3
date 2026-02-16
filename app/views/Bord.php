@@ -1,6 +1,10 @@
 <div class="container" style="padding-top: 120px; padding-bottom: 50px;">
     <h2 class="text-center mb-4">Tableau de Bord - Suivi des Villes et Besoins</h2>
 
+    <div class="text-end mb-3">
+        <a href="/dispatch" class="btn btn-primary">Lancer Dispatch</a>
+    </div>
+
     <div class="row">
         <div class="col-lg-12 table-responsive">
             <table class="table table-bordered table-striped">

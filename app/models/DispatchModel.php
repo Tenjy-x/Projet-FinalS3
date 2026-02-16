@@ -12,7 +12,7 @@ class DispatchModel
     }
 
     public function insertAttribution($data) {
-        $st = $this->db->prepare("INSERT INTO attribution(id_don , id_besoin , quantite) VALUES (? , ? , ?)");
+        $st = $this->db->prepare("INSERT INTO attribution(id_don , id_besoin , quantite, type_effectif) VALUES (? , ? , ?, ?)");
         $st->execute($data);
     }
 
@@ -42,12 +42,12 @@ class DispatchModel
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    private function createAttribution($idDon, $idBesoin, $quantite)
+    private function createAttribution($idDon, $idBesoin, $quantite, $typeEffectif)
     {
-        $sql = "INSERT INTO attribution (id_don, id_besoin, quantite, date_attribution)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
+        $sql = "INSERT INTO attribution (id_don, id_besoin, quantite, type_effectif, date_attribution)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$idDon, $idBesoin, $quantite]);
+        return $stmt->execute([$idDon, $idBesoin, $quantite, $typeEffectif]);
     }
 
     public function dispatchDons()
@@ -70,7 +70,11 @@ class DispatchModel
                     if ($resteDon <= 0) {
                         break;
                     }
-                    if ($besoin['type_besoin'] !== $don['type_don']) {
+                    $typeBesoin = $besoin['type_besoin'];
+                    $typeDon = $don['type_don'];
+                    $prixUnitaire = (float) $besoin['prix_unitaire'];
+
+                    if ($typeDon !== 'argent' && $typeBesoin !== $typeDon) {
                         continue;
                     }
 
@@ -79,15 +83,31 @@ class DispatchModel
                         continue;
                     }
 
-                    $quantiteAttribuee = min($resteDon, $resteBesoin);
-                    if ($quantiteAttribuee <= 0) {
-                        continue;
+                    if ($typeDon === 'argent' && $typeBesoin !== 'argent') {
+                        if ($prixUnitaire <= 0) {
+                            continue;
+                        }
+                        $maxUnites = (int) floor($resteDon / $prixUnitaire);
+                        $quantiteAttribuee = min($resteBesoin, $maxUnites);
+                        if ($quantiteAttribuee <= 0) {
+                            continue;
+                        }
+
+                        $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeBesoin);
+
+                        $resteDon -= (int) ($quantiteAttribuee * $prixUnitaire);
+                        $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
+                    } else {
+                        $quantiteAttribuee = min($resteDon, $resteBesoin);
+                        if ($quantiteAttribuee <= 0) {
+                            continue;
+                        }
+
+                        $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeDon);
+
+                        $resteDon -= $quantiteAttribuee;
+                        $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
                     }
-
-                    $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee);
-
-                    $resteDon -= $quantiteAttribuee;
-                    $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
 
                     $totalAttributions += 1;
                     $totalQuantite += $quantiteAttribuee;

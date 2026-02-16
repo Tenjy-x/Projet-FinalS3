@@ -67,15 +67,16 @@ INSERT INTO don (libelle_don, type_don, quantite, date_don) VALUES
 -- =========================================
 -- TABLE ATTRIBUTION
 -- =========================================
-CREATE TABLE attribution(
-    id_attribution INT PRIMARY KEY AUTO_INCREMENT,
-    id_don INT,
-    id_besoin INT,
-    quantite INT NOT NULL,
-    date_attribution TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(id_don) REFERENCES don(id_don),
-    FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin)
-);
+    CREATE TABLE attribution(
+        id_attribution INT PRIMARY KEY AUTO_INCREMENT,
+        id_don INT,
+        id_besoin INT,
+        quantite INT NOT NULL,
+        type_effectif ENUM('nature','materiaux','argent') NOT NULL,
+        date_attribution TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(id_don) REFERENCES don(id_don),
+        FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin)
+    );
 
 -- =========================================
 -- VIEW VILLE_BESOIN
@@ -92,6 +93,28 @@ SELECT
     (b.quantite * b.prix_unitaire) AS montant_total
 FROM ville v
 JOIN besoin b ON b.id_ville = v.id_ville;
+
+-- =========================================
+-- VIEW ATTRIBUTION_BESOIN_DON
+-- =========================================
+CREATE OR REPLACE VIEW v_attribution_details AS
+SELECT
+    a.id_attribution,
+    a.quantite AS quantite_attribuee,
+    a.date_attribution,
+    b.libelle_besoin,
+    b.type_besoin,
+    b.quantite AS quantite_besoin,
+    b.prix_unitaire,
+    d.libelle_don,
+    d.type_don,
+    d.quantite AS quantite_don
+FROM attribution a
+JOIN besoin b ON b.id_besoin = a.id_besoin
+JOIN don d ON d.id_don = a.id_don;
+
+
+
 
 
 

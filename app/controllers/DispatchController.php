@@ -11,10 +11,12 @@ class DispatchController
         $model = new DispatchModel(Flight::db());
         $result = $model->dispatchDons();
 
-        Flight::json([
-            'status' => 'ok',
-            'attributions' => $result['attributions'],
-            'quantite' => $result['quantite']
-        ]);
+        // Flight::json([
+        //     'status' => 'ok',
+        //     'attributions' => $result['attributions'],
+        //     'quantite' => $result['quantite']
+        // ]);
+
+        return $result;
     }
 }
