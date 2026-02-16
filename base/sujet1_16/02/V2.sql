@@ -21,29 +21,43 @@ INSERT INTO ville (nom_ville) VALUES
 ('Toliara');
 
 -- =========================================
+-- TABLE TYPE
+-- =========================================
+CREATE TABLE type(
+    id_type INT PRIMARY KEY AUTO_INCREMENT,
+    nom_type VARCHAR(50) NOT NULL
+);
+
+INSERT INTO type (nom_type) VALUES
+('nature'),
+('materiaux'),
+('argent');
+
+-- =========================================
 -- TABLE BESOIN
 -- =========================================
 CREATE TABLE besoin(
     id_besoin INT PRIMARY KEY AUTO_INCREMENT,
     libelle_besoin VARCHAR(255) NOT NULL,
-    type_besoin ENUM('nature','materiaux','argent') NOT NULL,
+    id_type INT NOT NULL,
     quantite INT NOT NULL,
     prix_unitaire DECIMAL(10,2) NOT NULL,
     date_besoin TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_ville INT,
-    FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
+    FOREIGN KEY(id_ville) REFERENCES ville(id_ville),
+    FOREIGN KEY(id_type) REFERENCES type(id_type)
 );
-INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES
-('Riz', 'nature',  1000, 1.50, 1),
-('Huile', 'nature', 500, 2.00, 1),
-('Tôles', 'materiaux', 200, 5.00, 2),
-('Clous', 'materiaux', 5000, 0.10, 2),
-('Fonds pour école', 'argent', 100000, 1.00, 3),
-('Médicaments', 'nature', 200, 3.50, 4),
-('Ciment', 'materiaux', 1500, 0.80, 5);
+INSERT INTO besoin (libelle_besoin, id_type, quantite, prix_unitaire, id_ville) VALUES
+('Riz', 1,  1000, 1.50, 1),
+('Huile', 1, 500, 2.00, 1),
+('Tôles', 2, 200, 5.00, 2),
+('Clous', 2, 5000, 0.10, 2),
+('Fonds pour école', 3, 100000, 1.00, 3),
+('Médicaments', 1, 200, 3.50, 4),
+('Ciment', 2, 1500, 0.80, 5);
 
-INSERT INTO besoin(libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES 
-('Preservatif' , 'nature' , 100 , 300 , 3);
+INSERT INTO besoin(libelle_besoin, id_type, quantite, prix_unitaire, id_ville) VALUES 
+('Preservatif' , 1 , 100 , 300 , 3);
 
 -- =========================================
 -- TABLE DON
@@ -51,19 +65,20 @@ INSERT INTO besoin(libelle_besoin, type_besoin, quantite, prix_unitaire, id_vill
 CREATE TABLE don(
     id_don INT PRIMARY KEY AUTO_INCREMENT,
     libelle_don VARCHAR(255) NOT NULL,
-    type_don ENUM('nature','materiaux','argent') NOT NULL,
+    id_type INT NOT NULL,
     quantite INT NOT NULL,  
-    date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(id_type) REFERENCES type(id_type)
 );
 
-INSERT INTO don (libelle_don, type_don, quantite, date_don) VALUES
-('Don de riz - Association X', 'nature', 500, '2026-02-10'),
-('Don de tôles - Entreprise Y', 'materiaux', 100, '2026-02-12'),
-('Don financier - Privé', 'argent', 50000, '2026-02-14'),
-('Don huile - ONG Z', 'nature', 300, '2026-02-15'),
-('Don de clous - Magasin', 'materiaux', 3000, '2026-02-13'),
-('Don financier - Collecte', 'argent', 75000, '2026-02-11'),
-('Don de ciment - Fournisseur', 'materiaux', 800, '2026-02-14');
+INSERT INTO don (libelle_don, id_type, quantite, date_don) VALUES
+('Don de riz - Association X', 1, 500, '2026-02-10'),
+('Don de tôles - Entreprise Y', 2, 100, '2026-02-12'),
+('Don financier - Privé', 3, 50000, '2026-02-14'),
+('Don huile - ONG Z', 1, 300, '2026-02-15'),
+('Don de clous - Magasin', 2, 3000, '2026-02-13'),
+('Don financier - Collecte', 3, 75000, '2026-02-11'),
+('Don de ciment - Fournisseur', 2, 800, '2026-02-14');
 -- =========================================
 -- TABLE ATTRIBUTION
 -- =========================================
@@ -104,12 +119,13 @@ SELECT
     v.nom_ville,
     b.id_besoin,
     b.libelle_besoin,
-    b.type_besoin,
+    t.nom_type,
     b.quantite,
     b.prix_unitaire,
     (b.quantite * b.prix_unitaire) AS montant_total
 FROM ville v
-JOIN besoin b ON b.id_ville = v.id_ville;
+JOIN besoin b ON b.id_ville = v.id_ville
+JOIN type t ON t.id_type = b.id_type;
 
 
 

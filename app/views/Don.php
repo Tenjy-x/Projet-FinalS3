@@ -1,19 +1,18 @@
-<div class="container-fluid py-5">
-    <div class="row px-xl-5">
-        <div class="col-lg-8 mx-auto">
-            <h2 class="section-title position-relative text-uppercase mb-4">
-                <span class="bg-secondary pr-3">Doner votre dons</span>
-            </h2>
+<div class="container-fluid" style="margin-top: 170px;">
+    <div class="row">
+        <div class="col-lg-7 mx-auto">
 
             <?php if (isset($success)): ?>
-                <div class="alert alert-success" role="alert">
-                    <?= htmlspecialchars($success) ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> <?= htmlspecialchars($success) ?>
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (isset($error)): ?>
-                <div class="alert alert-danger" role="alert">
-                    <?= htmlspecialchars($error) ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                 </div>
             <?php endif; ?>
             <div class="bg-light p-4 mb-5">
@@ -38,6 +37,7 @@
                     <button type="submit" class="btn btn-primary">Soumettre</button>
                 </form>
             </div>
+
         </div>
     </div>
 </div>

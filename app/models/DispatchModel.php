@@ -18,8 +18,9 @@ class DispatchModel
 
     private function getDonsWithReste()
     {
-        $sql = "SELECT d.*, d.quantite AS reste
+        $sql = "SELECT d.*, t.nom_type, d.quantite AS reste
                 FROM don d
+                JOIN type t ON t.id_type = d.id_type
                 WHERE d.quantite > 0
                 ORDER BY d.date_don ASC, d.id_don ASC";
         $stmt = $this->db->prepare($sql);
@@ -29,8 +30,9 @@ class DispatchModel
 
     private function getBesoinsWithReste()
     {
-        $sql = "SELECT b.*, b.quantite AS reste
+        $sql = "SELECT b.*, t.nom_type, b.quantite AS reste
                 FROM besoin b
+                JOIN type t ON t.id_type = b.id_type
                 WHERE b.quantite > 0
                 ORDER BY b.date_besoin ASC, b.id_besoin ASC";
         $stmt = $this->db->prepare($sql);
@@ -80,8 +82,8 @@ class DispatchModel
                     if ($resteDon <= 0) {
                         break;
                     }
-                    $typeBesoin = $besoin['type_besoin'];
-                    $typeDon = $don['type_don'];
+                    $typeBesoin = $besoin['nom_type'];
+                    $typeDon = $don['nom_type'];
 
                     // Seulement même type
                     if ($typeBesoin !== $typeDon) {

@@ -7,7 +7,7 @@ CREATE OR REPLACE VIEW v_besoins_restants AS
 SELECT 
     b.id_besoin,
     b.libelle_besoin,
-    b.type_besoin,
+    t.nom_type,
     b.quantite,
     b.prix_unitaire,
     b.date_besoin,
@@ -19,9 +19,10 @@ SELECT
     (IFNULL(SUM(a.quantite), 0) + IFNULL(SUM(ac.quantite), 0)) AS quantite_satisfaite
 FROM besoin b
 INNER JOIN ville v ON v.id_ville = b.id_ville
+INNER JOIN type t ON t.id_type = b.id_type
 LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
 LEFT JOIN achat ac ON ac.id_besoin = b.id_besoin
-GROUP BY b.id_besoin, b.libelle_besoin, b.type_besoin, b.quantite, b.prix_unitaire, 
+GROUP BY b.id_besoin, b.libelle_besoin, t.nom_type, b.quantite, b.prix_unitaire, 
          b.date_besoin, b.id_ville, v.nom_ville;
 
 -- Vue des dons en argent avec montants restants
@@ -35,7 +36,8 @@ SELECT
     (d.quantite - IFNULL(SUM(ac.montant_total), 0)) AS reste_argent
 FROM don d
 LEFT JOIN achat ac ON ac.id_don = d.id_don
-WHERE d.type_don = 'argent'
+INNER JOIN type t ON t.id_type = d.id_type
+WHERE t.nom_type = 'argent'
 GROUP BY d.id_don, d.libelle_don, d.quantite, d.date_don;
 
 -- Vue du récapitulatif global
@@ -69,11 +71,12 @@ SELECT
     ac.date_achat,
     d.libelle_don,
     b.libelle_besoin,
-    b.type_besoin,
+    t.nom_type,
     b.prix_unitaire,
     v.id_ville,
     v.nom_ville
 FROM achat ac
 INNER JOIN don d ON d.id_don = ac.id_don
 INNER JOIN besoin b ON b.id_besoin = ac.id_besoin
+INNER JOIN type t ON t.id_type = b.id_type
 INNER JOIN ville v ON v.id_ville = b.id_ville;

@@ -36,7 +36,7 @@
         </style>
     </head>
 
-    <body>
+    <body class="<?= isset($page) && $page !== 'welcome' ? 'page' : '' ?>">
         <!-- Top Bar Start -->
         <div class="top-bar d-none d-md-block">
             <div class="container-fluid">
@@ -84,13 +84,11 @@
                         <a href="event.html" class="nav-item nav-link">Events</a>
                         <a href="blog.html" class="nav-item nav-link">Blog</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Gestion</a>
                             <div class="dropdown-menu">
-                                <a href="single.html" class="dropdown-item">Detail Page</a>
-                                <a href="service.html" class="dropdown-item">What We Do</a>
-                                <a href="team.html" class="dropdown-item">Meet The Team</a>
-                                <a href="donate.html" class="dropdown-item">Donate Now</a>
-                                <a href="volunteer.html" class="dropdown-item">Become A Volunteer</a>
+                                <a href="/dons" class="dropdown-item">Faire un Don</a>
+                                <a href="/besoin" class="dropdown-item">Déclarer un Besoin</a>
+                                <a href="/dispatch" class="dropdown-item">Dispatch des Dons</a>
                             </div>
                         </div>
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
