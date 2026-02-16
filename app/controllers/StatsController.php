@@ -6,10 +6,12 @@ use Flight;
 
 class StatsController {
     function getAllVilles() {
-        $model = new Allmodels(Flight::db());
+        $model = new AllModels(Flight::db());
         $villes = $model->getAllVilles();
         return $villes;
     }
+<<<<<<< HEAD
+=======
     
     function getAllBesoins() {
         $model = new Allmodels(Flight::db());
