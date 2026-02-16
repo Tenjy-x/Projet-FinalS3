@@ -1,9 +1,9 @@
     -- =========================================
     -- SUPPRESSION ET CREATION DE LA BASE
     -- =========================================
-    -- DROP DATABASE IF EXISTS BNGRC;
-    -- CREATE DATABASE BNGRC;
-    -- USE BNGRC;
+    DROP DATABASE IF EXISTS BNGRC;
+    CREATE DATABASE BNGRC;
+    USE BNGRC;
 
     -- =========================================
     -- TABLE VILLE
