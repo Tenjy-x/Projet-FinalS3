@@ -1,0 +1,111 @@
+-- =========================================
+-- SUPPRESSION ET CREATION DE LA BASE
+-- =========================================
+DROP DATABASE IF EXISTS BNGRC;
+CREATE DATABASE BNGRC;
+USE BNGRC;
+
+-- =========================================
+-- TABLE VILLE
+-- =========================================
+CREATE TABLE ville(
+    id_ville INT PRIMARY KEY AUTO_INCREMENT,
+    nom_ville VARCHAR(255) NOT NULL
+);
+
+INSERT INTO ville (nom_ville) VALUES
+('Antananarivo'),
+('Toliara'),
+('Antsirabe'),
+('Mahajanga'),
+('Toliara');
+
+-- =========================================
+-- TABLE BESOIN
+-- =========================================
+CREATE TABLE besoin(
+    id_besoin INT PRIMARY KEY AUTO_INCREMENT,
+    libelle_besoin VARCHAR(255) NOT NULL,
+    type_besoin ENUM('nature','materiaux','argent') NOT NULL,
+    quantite INT NOT NULL,
+    prix_unitaire DECIMAL(10,2) NOT NULL,
+    date_besoin TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_ville INT,
+    FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
+);
+INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES
+('Riz', 'nature',  1000, 1.50, 1),
+('Huile', 'nature', 500, 2.00, 1),
+('Tôles', 'materiaux', 200, 5.00, 2),
+('Clous', 'materiaux', 5000, 0.10, 2),
+('Fonds pour école', 'argent', 100000, 1.00, 3),
+('Médicaments', 'nature', 200, 3.50, 4),
+('Ciment', 'materiaux', 1500, 0.80, 5);
+
+INSERT INTO besoin(libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES 
+('Preservatif' , 'nature' , 100 , 300 , 3);
+
+-- =========================================
+-- TABLE DON
+-- =========================================
+CREATE TABLE don(
+    id_don INT PRIMARY KEY AUTO_INCREMENT,
+    libelle_don VARCHAR(255) NOT NULL,
+    type_don ENUM('nature','materiaux','argent') NOT NULL,
+    quantite INT NOT NULL,  
+    date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO don (libelle_don, type_don, quantite, date_don) VALUES
+('Don de riz - Association X', 'nature', 500, '2026-02-10'),
+('Don de tôles - Entreprise Y', 'materiaux', 100, '2026-02-12'),
+('Don financier - Privé', 'argent', 50000, '2026-02-14'),
+('Don huile - ONG Z', 'nature', 300, '2026-02-15'),
+('Don de clous - Magasin', 'materiaux', 3000, '2026-02-13'),
+('Don financier - Collecte', 'argent', 75000, '2026-02-11'),
+('Don de ciment - Fournisseur', 'materiaux', 800, '2026-02-14');
+-- =========================================
+-- TABLE ATTRIBUTION
+-- =========================================
+CREATE TABLE attribution(
+    id_attribution INT PRIMARY KEY AUTO_INCREMENT,
+    id_don INT,
+    id_besoin INT,
+    quantite INT NOT NULL,
+    date_attribution TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(id_don) REFERENCES don(id_don),
+    FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin)
+);
+CREATE TABLE achat (
+    id_achat INT PRIMARY KEY AUTO_INCREMENT,
+    id_besoin INT,
+    id_don INT,
+    quantite INT,
+    montant DECIMAL(10,2),
+    frais DECIMAL(10,2),
+    montant_total DECIMAL(10,2),
+    date_achat DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_besoin) REFERENCES besoin(id_besoin),
+    FOREIGN KEY (id_don) REFERENCES don(id_don)
+);
+
+
+-- =========================================
+-- VIEW VILLE_BESOIN
+-- =========================================
+CREATE OR REPLACE VIEW v_villeBesoin AS
+SELECT
+    v.id_ville,
+    v.nom_ville,
+    b.id_besoin,
+    b.libelle_besoin,
+    b.type_besoin,
+    b.quantite,
+    b.prix_unitaire,
+    (b.quantite * b.prix_unitaire) AS montant_total
+FROM ville v
+JOIN besoin b ON b.id_ville = v.id_ville;
+
+
+
+
