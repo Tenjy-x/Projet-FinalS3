@@ -11,7 +11,7 @@ class StatsController {
         return $villes;
     }
     
-    function getAllBesoin() {
+    function getAllBesoins() {
         $model = new Allmodels(Flight::db());
         $besoins = $model->getAllBesoin();
         return $besoins;
