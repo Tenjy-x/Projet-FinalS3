@@ -111,7 +111,7 @@
                         <?php foreach ($ville['besoins'] as $besoin): ?>
                         <?php $s = $statut_info[$besoin['statut']]; ?>
                         <tr class="<?= $besoin['statut'] === 'urgent' ? 'table-danger' : '' ?>">
-                            <td><strong><?= htmlspecialchars($besoin['libelle_besoin']) ?></strong></td>
+                            <td><strong><?= htmlspecialchars($besoin['nom_produit']) ?></strong></td>
                             <td>
                                 <span class="badge bg-<?= $badge_type[$besoin['nom_type']] ?>">
                                     <?= htmlspecialchars(strtoupper($besoin['nom_type'])) ?>
@@ -167,7 +167,7 @@
                             <?php foreach ($besoin['attributions'] as $attr): ?>
                             <tr>
                                 <td><?= date('d/m/Y H:i', strtotime($attr['date_attribution'])) ?></td>
-                                <td><?= htmlspecialchars($besoin['libelle_besoin']) ?></td>
+                                <td><?= htmlspecialchars($besoin['nom_produit']) ?></td>
                                 <td><?= htmlspecialchars($attr['libelle_don']) ?></td>
                                 <td>
                                     <span class="badge bg-<?= $badge_type[$attr['nom_type']] ?>">

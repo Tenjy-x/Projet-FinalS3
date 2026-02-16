@@ -86,7 +86,7 @@
                                                     <small><?= date('d/m/Y H:i', strtotime($achat['date_achat'])) ?></small>
                                                 </td>
                                                 <td><?= htmlspecialchars($achat['nom_ville']) ?></td>
-                                                <td><?= htmlspecialchars($achat['libelle_besoin']) ?></td>
+                                                <td><?= htmlspecialchars($achat['nom_produit']) ?></td>
                                                 <td>
                                                     <span class="badge badge-<?= $achat['nom_type'] ?>">
                                                         <?= ucfirst($achat['nom_type']) ?>

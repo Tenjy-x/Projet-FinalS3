@@ -6,6 +6,38 @@
     USE BNGRC;
 
     -- =========================================
+    -- TABLE TYPE
+    -- =========================================
+    CREATE TABLE type(
+        id_type INT PRIMARY KEY AUTO_INCREMENT,
+        nom_type VARCHAR(50) NOT NULL
+    );
+
+    INSERT INTO type (nom_type) VALUES
+    ('nature'),
+    ('materiaux'),
+    ('argent');
+
+    -- =========================================
+    -- TABLE PRODUIT
+    -- =========================================
+    CREATE TABLE produit(
+        id_produit INT PRIMARY KEY AUTO_INCREMENT,
+        nom_produit VARCHAR(255) NOT NULL,
+        id_type INT NOT NULL,
+        FOREIGN KEY(id_type) REFERENCES type(id_type)
+    );
+
+    INSERT INTO produit (nom_produit, id_type) VALUES
+    ('Riz', 1),
+    ('Huile', 1),
+    ('Tôles', 2),
+    ('Clous', 2),
+    ('Fonds pour école', 3),
+    ('Médicaments', 1),
+    ('Ciment', 2);
+
+    -- =========================================
     -- TABLE VILLE
     -- =========================================
     CREATE TABLE ville(
@@ -25,22 +57,18 @@
     -- =========================================
     CREATE TABLE besoin(
         id_besoin INT PRIMARY KEY AUTO_INCREMENT,
-        libelle_besoin VARCHAR(255) NOT NULL,
-        type_besoin ENUM('nature','materiaux','argent') NOT NULL,
+        id_produit INT NOT NULL,
         quantite INT NOT NULL,
         prix_unitaire DECIMAL(10,2) NOT NULL,
         date_besoin TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         id_ville INT,
+        FOREIGN KEY(id_produit) REFERENCES produit(id_produit),
         FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
     );
-    INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, date_besoin, id_ville) VALUES
-    ('Riz', 'nature',  1000, 1.50, '2026-02-10', 1),
-    ('Huile', 'nature', 500, 2.00, '2026-02-11', 1),
-    ('Tôles', 'materiaux', 200, 5.00, '2026-02-12', 2),
-    ('Clous', 'materiaux', 5000, 0.10, '2026-02-12', 2),
-    ('Fonds pour école', 'argent', 100000, 1.00, '2026-02-13', 3),
-    ('Médicaments', 'nature', 200, 3.50, '2026-02-14', 4),
-    ('Ciment', 'materiaux', 1500, 0.80, '2026-02-15', 5);
+    INSERT INTO besoin (id_produit, quantite, prix_unitaire, date_besoin, id_ville) VALUES
+    (1, 1000, 1.50, '2026-02-10', 1),
+    (2, 500, 2.00, '2026-02-11', 1),
+    (3, 200, 5.00, '2026-02-12', 2);
 
 
     -- =========================================
@@ -49,19 +77,17 @@
     CREATE TABLE don(
         id_don INT PRIMARY KEY AUTO_INCREMENT,
         libelle_don VARCHAR(255) NOT NULL,
-        type_don ENUM('nature','materiaux','argent') NOT NULL,
+        id_produit INT NOT NULL,
         quantite INT NOT NULL,  
-        date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(id_produit) REFERENCES produit(id_produit)
     );
 
-    INSERT INTO don (libelle_don, type_don, quantite, date_don) VALUES
-    ('Don de riz - Association X', 'nature', 500, '2026-02-10'),
-    ('Don de tôles - Entreprise Y', 'materiaux', 100, '2026-02-12'),
-    ('Don financier - Privé', 'argent', 50000, '2026-02-14'),
-    ('Don huile - ONG Z', 'nature', 300, '2026-02-15'),
-    ('Don de clous - Magasin', 'materiaux', 3000, '2026-02-13'),
-    ('Don financier - Collecte', 'argent', 75000, '2026-02-11'),
-    ('Don de ciment - Fournisseur', 'materiaux', 800, '2026-02-14');
+    INSERT INTO don (libelle_don, id_produit, quantite, date_don) VALUES
+    ('Don de riz - Association X', 1, 500, '2026-02-10'),
+    ('Don de tôles - Entreprise Y', 3, 100, '2026-02-12'),
+    ('Don huile - ONG Z', 2, 300, '2026-02-15');
+
     -- =========================================
     -- TABLE ATTRIBUTION
     -- =========================================
@@ -70,7 +96,6 @@
             id_don INT,
             id_besoin INT,
             quantite INT NOT NULL,
-            type_effectif ENUM('nature','materiaux','argent') NOT NULL,
             date_attribution TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(id_don) REFERENCES don(id_don),
             FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin)
@@ -84,13 +109,15 @@
         v.id_ville,
         v.nom_ville,
         b.id_besoin,
-        b.libelle_besoin,
-        b.type_besoin,
+        p.nom_produit,
+        t.nom_type AS type_besoin,
         b.quantite,
         b.prix_unitaire,
         (b.quantite * b.prix_unitaire) AS montant_total
     FROM ville v
-    JOIN besoin b ON b.id_ville = v.id_ville;
+    JOIN besoin b ON b.id_ville = v.id_ville
+    JOIN produit p ON p.id_produit = b.id_produit
+    JOIN type t ON t.id_type = p.id_type;
 
     -- =========================================
     -- VIEW ATTRIBUTION_BESOIN_DON
@@ -100,16 +127,21 @@
         a.id_attribution,
         a.quantite AS quantite_attribuee,
         a.date_attribution,
-        b.libelle_besoin,
-        b.type_besoin,
+        pb.nom_produit AS nom_produit_besoin,
+        tb.nom_type AS type_besoin,
         b.quantite AS quantite_besoin,
         b.prix_unitaire,
         d.libelle_don,
-        d.type_don,
+        pd.nom_produit AS nom_produit_don,
+        td.nom_type AS type_don,
         d.quantite AS quantite_don
     FROM attribution a
     JOIN besoin b ON b.id_besoin = a.id_besoin
-    JOIN don d ON d.id_don = a.id_don;
+    JOIN don d ON d.id_don = a.id_don
+    JOIN produit pb ON pb.id_produit = b.id_produit
+    JOIN produit pd ON pd.id_produit = d.id_produit
+    JOIN type tb ON tb.id_type = pb.id_type
+    JOIN type td ON td.id_type = pd.id_type;
 
 
 

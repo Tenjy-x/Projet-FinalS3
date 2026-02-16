@@ -30,8 +30,9 @@ $router->group('', function(Router $router) use ($app) {
 		$villes = $controller->getAllVilles();
 		$besoins = $controller->getAllBesoins();
 		$dons = $controller->getAllDons();
-		$type = $donController->getAlltypes();
-		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons, 'type' => $type]);
+		$produits = $donController->getAllProduits();
+		$types = $donController->getAlltypes();
+		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons, 'produits' => $produits, 'types' => $types]);
 	});
 
 	$router->get('/dispatch', function() use ($app) {
@@ -48,8 +49,9 @@ $router->group('', function(Router $router) use ($app) {
 		$villes = $controller->getAllVilles();
 		$besoins = $controller->getAllBesoins();
 		$dons = $controller->getAllDons();
-		$type = $donController->getAlltypes();
-		$data = [ 'page' => 'Don', 'villes' => $villes, 'besoins' => $besoins, 'dons' => $dons, 'type' => $type ];
+		$produits = $donController->getAllProduits();
+		$types = $donController->getAlltypes();
+		$data = [ 'page' => 'Don', 'villes' => $villes, 'besoins' => $besoins, 'dons' => $dons, 'produits' => $produits, 'types' => $types ];
 		if (isset($result['success'])) {
 			$data['success'] = $result['success'];
 		}

@@ -102,7 +102,7 @@
                                         <?php if ($besoin['nom_type'] !== 'argent'): ?>
                                             <tr>
                                                 <td><?= htmlspecialchars($besoin['nom_ville']) ?></td>
-                                                <td><?= htmlspecialchars($besoin['libelle_besoin']) ?></td>
+                                                <td><?= htmlspecialchars($besoin['nom_produit']) ?></td>
                                                 <td>
                                                     <span class="badge" style="background-color: <?= $besoin['nom_type'] === 'nature' ? '#28a745' : '#FDBE33' ?>; color: #fff;">
                                                         <?= ucfirst($besoin['nom_type']) ?>
@@ -115,7 +115,7 @@
                                                     <button class="btn btn-sm btn-custom btn-acheter"
                                                         data-toggle="modal" data-target="#modalAchat"
                                                         data-besoin-id="<?= $besoin['id_besoin'] ?>"
-                                                        data-besoin-libelle="<?= htmlspecialchars($besoin['libelle_besoin']) ?>"
+                                                        data-besoin-libelle="<?= htmlspecialchars($besoin['nom_produit']) ?>"
                                                         data-besoin-reste="<?= $besoin['reste'] ?>"
                                                         data-besoin-prix="<?= $besoin['prix_unitaire'] ?>">
                                                         🛒 Acheter

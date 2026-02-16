@@ -16,11 +16,12 @@ class AchatModel
      */
     public function getBesoinsRestants(?int $id_ville = null)
     {
-        $sql = "SELECT b.*, v.nom_ville, t.nom_type,
+        $sql = "SELECT b.*, p.nom_produit, v.nom_ville, t.nom_type,
                     b.quantite - COALESCE((SELECT SUM(a.quantite) FROM achat a WHERE a.id_besoin = b.id_besoin), 0) AS quantite_restante
                 FROM besoin b
                 JOIN ville v ON v.id_ville = b.id_ville
-                JOIN type t ON t.id_type = b.id_type
+                JOIN produit p ON p.id_produit = b.id_produit
+                JOIN type t ON t.id_type = p.id_type
                 WHERE t.nom_type IN ('nature', 'materiaux')";
         
         $params = [];
@@ -41,7 +42,7 @@ class AchatModel
     public function getSoldeArgent()
     {
         $sql = "SELECT 
-                    COALESCE((SELECT SUM(d.quantite) FROM don d JOIN type t ON t.id_type = d.id_type WHERE t.nom_type = 'argent'), 0) 
+                    COALESCE((SELECT SUM(d.quantite) FROM don d JOIN produit p ON p.id_produit = d.id_produit JOIN type t ON t.id_type = p.id_type WHERE t.nom_type = 'argent'), 0) 
                     - COALESCE((SELECT SUM(montant_total) FROM achat), 0) AS solde";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -75,10 +76,11 @@ class AchatModel
      */
     public function getBesoinById(int $id_besoin)
     {
-        $sql = "SELECT b.*, t.nom_type,
+        $sql = "SELECT b.*, p.nom_produit, t.nom_type,
                     b.quantite - COALESCE((SELECT SUM(a.quantite) FROM achat a WHERE a.id_besoin = b.id_besoin), 0) AS quantite_restante
                 FROM besoin b
-                JOIN type t ON t.id_type = b.id_type
+                JOIN produit p ON p.id_produit = b.id_produit
+                JOIN type t ON t.id_type = p.id_type
                 WHERE b.id_besoin = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id_besoin]);
@@ -93,7 +95,8 @@ class AchatModel
         $sql = "SELECT d.id_don, d.libelle_don, 
                     d.quantite - COALESCE((SELECT SUM(a.montant_total) FROM achat a WHERE a.id_don = d.id_don), 0) AS solde_restant
                 FROM don d 
-                JOIN type t ON t.id_type = d.id_type
+                JOIN produit p ON p.id_produit = d.id_produit
+                JOIN type t ON t.id_type = p.id_type
                 WHERE t.nom_type = 'argent'
                 HAVING solde_restant > 0
                 ORDER BY d.date_don ASC
@@ -119,10 +122,11 @@ class AchatModel
      */
     public function getAllAchats()
     {
-        $sql = "SELECT a.*, b.libelle_besoin, t.nom_type, v.nom_ville
+        $sql = "SELECT a.*, p.nom_produit, t.nom_type, v.nom_ville
                 FROM achat a
                 JOIN besoin b ON b.id_besoin = a.id_besoin
-                JOIN type t ON t.id_type = b.id_type
+                JOIN produit p ON p.id_produit = b.id_produit
+                JOIN type t ON t.id_type = p.id_type
                 JOIN ville v ON v.id_ville = b.id_ville
                 ORDER BY a.date_achat DESC";
         $stmt = $this->db->prepare($sql);

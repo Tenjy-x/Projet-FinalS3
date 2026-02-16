@@ -135,7 +135,7 @@ class DispatchController
             $this->app->json([
                 'success' => true,
                 'simulation' => [
-                    'besoin' => $besoin['libelle_besoin'],
+                    'besoin' => $besoin['nom_produit'],
                     'ville' => $besoin['nom_ville'],
                     'type' => $besoin['nom_type'],
                     'quantite' => $quantite,
@@ -263,7 +263,7 @@ class DispatchController
                 'success' => true,
                 'message' => 'Achat validé avec succès',
                 'achat' => [
-                    'besoin' => $besoin['libelle_besoin'],
+                    'besoin' => $besoin['nom_produit'],
                     'ville' => $besoin['nom_ville'],
                     'quantite' => $quantite,
                     'montant_total' => $calcul['total']

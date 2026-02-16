@@ -12,15 +12,16 @@ class DispatchModel
     }
 
     public function insertAttribution($data) {
-        $st = $this->db->prepare("INSERT INTO attribution(id_don , id_besoin , quantite, type_effectif) VALUES (? , ? , ?, ?)");
+        $st = $this->db->prepare("INSERT INTO attribution(id_don, id_besoin, quantite) VALUES (?, ?, ?)");
         $st->execute($data);
     }
 
     private function getDonsWithReste()
     {
-        $sql = "SELECT d.*, t.nom_type, d.quantite AS reste
+        $sql = "SELECT d.*, p.nom_produit, p.id_type, t.nom_type, d.quantite AS reste
                 FROM don d
-                JOIN type t ON t.id_type = d.id_type
+                JOIN produit p ON p.id_produit = d.id_produit
+                JOIN type t ON t.id_type = p.id_type
                 WHERE d.quantite > 0
                 ORDER BY d.date_don ASC, d.id_don ASC";
         $stmt = $this->db->prepare($sql);
@@ -30,9 +31,10 @@ class DispatchModel
 
     private function getBesoinsWithReste()
     {
-        $sql = "SELECT b.*, t.nom_type, b.quantite AS reste
+        $sql = "SELECT b.*, p.nom_produit, p.id_type, t.nom_type, b.quantite AS reste
                 FROM besoin b
-                JOIN type t ON t.id_type = b.id_type
+                JOIN produit p ON p.id_produit = b.id_produit
+                JOIN type t ON t.id_type = p.id_type
                 WHERE b.quantite > 0
                 ORDER BY b.date_besoin ASC, b.id_besoin ASC";
         $stmt = $this->db->prepare($sql);
@@ -40,12 +42,12 @@ class DispatchModel
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    private function createAttribution($idDon, $idBesoin, $quantite, $typeEffectif)
+    private function createAttribution($idDon, $idBesoin, $quantite)
     {
-        $sql = "INSERT INTO attribution (id_don, id_besoin, quantite, type_effectif, date_attribution)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        $sql = "INSERT INTO attribution (id_don, id_besoin, quantite, date_attribution)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$idDon, $idBesoin, $quantite, $typeEffectif]);
+        return $stmt->execute([$idDon, $idBesoin, $quantite]);
     }
 
     private function updateDonQuantite($idDon, $quantiteUtilisee)
@@ -82,11 +84,8 @@ class DispatchModel
                     if ($resteDon <= 0) {
                         break;
                     }
-                    $typeBesoin = $besoin['nom_type'];
-                    $typeDon = $don['nom_type'];
-
-                    // Seulement même type
-                    if ($typeBesoin !== $typeDon) {
+                    // Seulement même produit (Riz→Riz, Huile→Huile, etc.)
+                    if ((int) $besoin['id_produit'] !== (int) $don['id_produit']) {
                         continue;
                     }
 
@@ -100,7 +99,7 @@ class DispatchModel
                         continue;
                     }
 
-                    $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeDon);
+                    $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee);
                     $this->updateDonQuantite($don['id_don'], $quantiteAttribuee);
                     $this->updateBesoinQuantite($besoin['id_besoin'], $quantiteAttribuee);
 

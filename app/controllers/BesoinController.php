@@ -19,15 +19,17 @@ class BesoinController
      */
     public function showForm()
     {
-        // Récupérer toutes les villes et types pour le dropdown
+        // Récupérer toutes les villes, produits et types pour le formulaire
         $model = new AllModels($this->app->db());
         $villes = $model->getAllVilles();
+        $produits = $model->getAllProduits();
         $types = $model->getAllTypes();
 
         // Rendre la vue avec le layout Modal
         $this->app->render('Modal', [
             'page' => 'besoin',
             'villes' => $villes,
+            'produits' => $produits,
             'types' => $types,
             'success' => $this->app->request()->query->success ?? null,
             'error' => $this->app->request()->query->error ?? null
@@ -41,22 +43,30 @@ class BesoinController
     {
         try {
             // Récupérer les données du formulaire
-            $libelle = $this->app->request()->data->libelle_besoin ?? '';
-            $id_type = $this->app->request()->data->id_type ?? '';
+            $nom_produit = trim($this->app->request()->data->nom_produit ?? '');
+            $id_type = (int) ($this->app->request()->data->id_type ?? 0);
             $quantite = $this->app->request()->data->quantite ?? 0;
             $prix_unitaire = $this->app->request()->data->prix_unitaire ?? 0;
             $id_ville = $this->app->request()->data->id_ville ?? null;
 
             // Validation basique
-            if (empty($libelle) || empty($id_type) || $quantite <= 0 || $prix_unitaire <= 0 || empty($id_ville)) {
+            if (empty($nom_produit) || $id_type <= 0 || $quantite <= 0 || $prix_unitaire <= 0 || empty($id_ville)) {
                 $this->app->redirect('/besoin?error=' . urlencode('Tous les champs sont obligatoires'));
                 return;
             }
 
+            // Chercher ou créer le produit
+            $donModel = new \app\models\DonModel($this->app->db());
+            $produit = $donModel->findProduitByName($nom_produit);
+            if ($produit) {
+                $id_produit = $produit['id_produit'];
+            } else {
+                $id_produit = $donModel->createProduit(ucfirst($nom_produit), $id_type);
+            }
+
             // Préparer les données pour l'insertion
             $data = [
-                $libelle,
-                (int) $id_type,
+                (int) $id_produit,
                 (int) $quantite,
                 (float) $prix_unitaire,
                 (int) $id_ville
