@@ -89,7 +89,10 @@ CREATE TABLE achat (
     FOREIGN KEY (id_don) REFERENCES don(id_don)
 );
 
-
+CREATE TABLE config(
+    cle_config VARCHAR(50) PRIMARY KEY,
+    valeur_config DECIMAL(5,2) NOT NULL
+);
 -- =========================================
 -- VIEW VILLE_BESOIN
 -- =========================================
