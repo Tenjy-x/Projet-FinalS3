@@ -40,6 +40,7 @@ $router->group('', function(Router $router) use ($app) {
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
 		$app->redirect('/bord');
 	});	
+
 	$router->post('/dons', function() use ($app) {
 		$donController = new DonController();
 		$result = $donController->createDon();
