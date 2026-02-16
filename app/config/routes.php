@@ -28,11 +28,4 @@ $router->group('', function(Router $router) use ($app) {
 		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
 	});
 
-<<<<<<< HEAD
-=======
-	$router->get('/bord', function() use ($app) {
-		$app->render('Modal', [ 'page' => 'bord' ]);
-	});
->>>>>>> cb98762 (model_tohiny)
-	
 }, [ SecurityHeadersMiddleware::class ]);
