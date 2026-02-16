@@ -12,14 +12,17 @@ class DonModel
 
     public function getAllTypes()
     {
-        $stmt = $this->db->prepare("SELECT * FROM type_don");
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        // Les types sont définis comme ENUM dans la table don
+        return [
+            ['id' => 'nature', 'name' => 'Nature'],
+            ['id' => 'materiaux', 'name' => 'Matériaux'],
+            ['id' => 'argent', 'name' => 'Argent']
+        ];
     }
 
     public function createDon($description, $type, $quantites, $date)
     {
-        $sql = "INSERT INTO don (description, type, quantites, date) 
+        $sql = "INSERT INTO don (libelle_don, type_don, quantite, date_don) 
                 VALUES (?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$description, $type, $quantites, $date]);

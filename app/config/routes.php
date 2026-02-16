@@ -3,6 +3,7 @@ use app\controllers\StatsController;
 use app\controllers\ApiExampleController;
 use app\controllers\BesoinController;
 use app\controllers\BngrcController;
+use app\controllers\DonController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -24,10 +25,17 @@ $router->group('', function(Router $router) use ($app) {
 
 	$router->get('/dons', function() use ($app) {
 		$controller = new StatsController();
+		$donController = new DonController();
 		$villes = $controller->getAllVilles();
 		$besoins = $controller->getAllBesoins();
 		$dons = $controller->getAllDons();
-		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons]);
+		$type = $donController->getAlltypes();
+		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons, 'type' => $type]);
+	});
+
+	$router->post('/dons', function() {
+		$donController = new DonController();
+		$donController->createDon();
 	});
 
 	$router->get('/bord', function() use ($app) {
@@ -38,8 +46,7 @@ $router->group('', function(Router $router) use ($app) {
 		$villesBesoins = $controller->getVillesBesoins();
 		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins]);
 	});
-
-
+	
 	$router->group('/api', function() use ($router) {
 		$router->get('/users', [ ApiExampleController::class, 'getUsers' ]);
 		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
