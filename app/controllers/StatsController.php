@@ -10,4 +10,13 @@ class StatsController {
         $villes = $model->getAllVilles();
         return $villes;
     }
+<<<<<<< HEAD
+=======
+    
+    function getAllBesoins() {
+        $model = new Allmodels(Flight::db());
+        $besoins = $model->getAllBesoin();
+        return $besoins;
+    }
+>>>>>>> 8379122 (ok)
 }
