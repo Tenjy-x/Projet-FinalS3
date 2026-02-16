@@ -1,21 +1,19 @@
-<div class="container-fluid" style="padding-top: 100px; padding-bottom: 50px;">
+<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
 
-    <!-- TITRE / EN-TÊTE -->
     <div class="row mb-4">
         <div class="col-12 text-center">
-            <h2 class="mb-1">Tableau de bord BNGRC</h2>
-            <p class="text-muted mb-3">Vue d'ensemble de la situation humanitaire dans toutes les villes</p>
-            <a href="/dispatch" class="btn btn-primary">Lancer le dispatch automatique</a>
+            <h2 class="mb-1">Tableau de bord</h2>
+            <p class="text-muted mb-3">Liste des villes, besoins et dons attribués</p>
+            <a href="/dispatch" class="btn btn-primary">Lancer le dispatch</a>
         </div>
     </div>
 
-    <!-- COMPTEURS GLOBAUX -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card text-center shadow-sm border-primary">
                 <div class="card-body">
                     <h2 class="text-primary mb-0"><?= htmlspecialchars($stats['nombre_villes']) ?></h2>
-                    <p class="mb-0">Villes concernées</p>
+                    <p class="mb-0">Villes</p>
                 </div>
             </div>
         </div>
@@ -23,7 +21,7 @@
             <div class="card text-center shadow-sm border-danger">
                 <div class="card-body">
                     <h2 class="text-danger mb-0"><?= htmlspecialchars($stats['nombre_besoins']) ?></h2>
-                    <p class="mb-0">Besoins enregistrés</p>
+                    <p class="mb-0">Besoins</p>
                 </div>
             </div>
         </div>
@@ -31,7 +29,7 @@
             <div class="card text-center shadow-sm border-success">
                 <div class="card-body">
                     <h2 class="text-success mb-0"><?= htmlspecialchars($stats['nombre_dons']) ?></h2>
-                    <p class="mb-0">Dons reçus</p>
+                    <p class="mb-0">Dons</p>
                 </div>
             </div>
         </div>
@@ -44,105 +42,15 @@
             </div>
         </div>
     </div>
-    <!-- TAUX DE SATISFACTION -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Taux de satisfaction global</h5>
-                    <?php 
-                    $taux = floatval($stats['taux_satisfaction']);
-                    $color = $taux < 30 ? 'danger' : ($taux < 70 ? 'warning' : 'success');
-                    ?>
-                    <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-<?= $color ?>" role="progressbar" 
-                             style="width: <?= $taux ?>%;" aria-valuenow="<?= $taux ?>" aria-valuemin="0" aria-valuemax="100">
-                            <?= number_format($taux, 1) ?>%
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-6">
-                            <small class="text-muted">
-                                Reçu: <strong><?= number_format($stats['montant_total_recu'], 0, ',', ' ') ?> Ar</strong>
-                            </small>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            <small class="text-muted">
-                                Total besoins: <strong><?= number_format($stats['montant_total_besoins'], 0, ',', ' ') ?> Ar</strong>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+    <div class="alert alert-light border mb-4">
+        <strong>Légende :</strong>
+        <span class="badge bg-danger ms-2">Urgent</span>
+        <span class="badge bg-warning text-dark ms-2">Partiel</span>
+        <span class="badge bg-success ms-2">Satisfait</span>
     </div>
 
-    <!-- BOUTON DISPATCH -->
-    <div class="row mb-4">
-        <div class="col-12 text-center">
-            <a href="/dispatch" class="btn btn-warning btn-lg shadow">
-                Lancer le dispatch automatique
-            </a>
-        </div>
-    </div>
-
-    <!-- SECTION ALERTES -->
-    <?php if (!empty($besoinsUrgents) || !empty($donsEnAttente)): ?>
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-danger shadow-sm">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Alertes</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Besoins urgents -->
-                        <?php if (!empty($besoinsUrgents)): ?>
-                        <div class="col-md-6">
-                            <h6 class="text-danger">Besoins non satisfaits depuis plus de trois jours</h6>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($besoinsUrgents as $urgent): ?>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <strong><?= htmlspecialchars($urgent['nom_ville']) ?></strong> - 
-                                        <?= htmlspecialchars($urgent['libelle_besoin']) ?>
-                                        <small class="text-muted">(<?= htmlspecialchars($urgent['type_besoin']) ?>)</small>
-                                    </span>
-                                    <span class="badge bg-danger"><?= $urgent['jours_attente'] ?> jours</span>
-                                </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <!-- Dons en attente -->
-                        <?php if (!empty($donsEnAttente)): ?>
-                        <div class="col-md-6">
-                            <h6 class="text-warning">Dons en attente d'attribution</h6>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($donsEnAttente as $don): ?>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <?= htmlspecialchars($don['libelle_don']) ?>
-                                        <small class="text-muted">(<?= htmlspecialchars($don['type_don']) ?>)</small>
-                                    </span>
-                                    <span class="badge bg-warning text-dark">
-                                        <?= number_format($don['quantite_restante'], 0, ',', ' ') ?> restants
-                                    </span>
-                                </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- DÉTAILS PAR VILLE -->
-    <h4 class="mb-3">Situation par ville</h4>
+    <h4 class="mb-3">Villes et besoins</h4>
     
     <?php foreach ($villes as $ville): ?>
     <?php
@@ -161,30 +69,19 @@
     }
     $montant_reste = $montant_total - $montant_recu;
     ?>
-    <div class="card mb-4 shadow-sm" style="border-left: 5px solid #0d6efd;">
-        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><?= htmlspecialchars($ville['nom_ville']) ?></h5>
-                <div>
-                    <?php if ($nb_urgent > 0): ?>
-                        <span class="badge bg-danger"><?= $nb_urgent ?> urgents</span>
-                    <?php endif; ?>
-                    <?php if ($nb_partiel > 0): ?>
-                        <span class="badge bg-warning text-dark"><?= $nb_partiel ?> partiels</span>
-                    <?php endif; ?>
-                    <?php if ($nb_complet > 0): ?>
-                        <span class="badge bg-success"><?= $nb_complet ?> satisfaits</span>
-                    <?php endif; ?>
-                </div>
+                <small class="text-muted">
+                    Total: <strong><?= number_format($montant_total, 0, ',', ' ') ?> Ar</strong> | 
+                    Reçu: <strong><?= number_format($montant_recu, 0, ',', ' ') ?> Ar</strong> | 
+                    Reste: <strong><?= number_format($montant_reste, 0, ',', ' ') ?> Ar</strong>
+                </small>
             </div>
-            <small>
-                Total: <strong><?= number_format($montant_total, 0, ',', ' ') ?> Ar</strong> | 
-                Reçu: <strong><?= number_format($montant_recu, 0, ',', ' ') ?> Ar</strong> | 
-                Reste: <strong><?= number_format($montant_reste, 0, ',', ' ') ?> Ar</strong>
-            </small>
         </div>
         <div class="card-body">
-            <!-- Tableau des besoins -->
+            <h6 class="mb-2">Besoins</h6>
             <div class="table-responsive">
                 <table class="table table-hover table-sm">
                     <thead class="table-light">
@@ -200,11 +97,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($ville['besoins'] as $besoin): ?>
                         <?php
                         $badge_type = [
                             'nature' => 'success',
-                            'materiaux' => 'primary', 
+                            'materiaux' => 'primary',
                             'argent' => 'warning'
                         ];
                         $statut_info = [
@@ -212,8 +108,9 @@
                             'partiel' => ['label' => 'Partiel', 'class' => 'warning'],
                             'complet' => ['label' => 'Satisfait', 'class' => 'success']
                         ];
-                        $s = $statut_info[$besoin['statut']];
                         ?>
+                        <?php foreach ($ville['besoins'] as $besoin): ?>
+                        <?php $s = $statut_info[$besoin['statut']]; ?>
                         <tr class="<?= $besoin['statut'] === 'urgent' ? 'table-danger' : '' ?>">
                             <td><strong><?= htmlspecialchars($besoin['libelle_besoin']) ?></strong></td>
                             <td>
@@ -243,7 +140,7 @@
                 </table>
             </div>
 
-            <!-- Dons attribués à cette ville -->
+            <h6 class="mt-4 mb-2">Dons attribués</h6>
             <?php
             $has_attributions = false;
             foreach ($ville['besoins'] as $besoin) {
@@ -254,62 +151,42 @@
             }
             ?>
             <?php if ($has_attributions): ?>
-            <div class="mt-3">
-                <h6 class="text-muted">Dons attribués à cette ville</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                        <thead class="table-secondary">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Date</th>
+                            <th>Besoin</th>
+                            <th>Donateur / Don</th>
+                            <th>Type</th>
+                            <th class="text-end">Quantité</th>
+                            <th class="text-end">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($ville['besoins'] as $besoin): ?>
+                            <?php foreach ($besoin['attributions'] as $attr): ?>
                             <tr>
-                                <th>Date</th>
-                                <th>Pour besoin</th>
-                                <th>Donateur / Don</th>
-                                <th>Type</th>
-                                <th class="text-end">Quantité</th>
-                                <th class="text-end">Montant</th>
+                                <td><?= date('d/m/Y H:i', strtotime($attr['date_attribution'])) ?></td>
+                                <td><?= htmlspecialchars($besoin['libelle_besoin']) ?></td>
+                                <td><?= htmlspecialchars($attr['libelle_don']) ?></td>
+                                <td>
+                                    <span class="badge bg-<?= $badge_type[$attr['type_don']] ?>">
+                                        <?= htmlspecialchars(strtoupper($attr['type_don'])) ?>
+                                    </span>
+                                </td>
+                                <td class="text-end"><?= number_format($attr['quantite'], 0, ',', ' ') ?></td>
+                                <td class="text-end"><?= number_format($attr['montant'], 0, ',', ' ') ?> Ar</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($ville['besoins'] as $besoin): ?>
-                                <?php foreach ($besoin['attributions'] as $attr): ?>
-                                <tr>
-                                    <td><?= date('d/m/Y H:i', strtotime($attr['date_attribution'])) ?></td>
-                                    <td><?= htmlspecialchars($besoin['libelle_besoin']) ?></td>
-                                    <td><?= htmlspecialchars($attr['libelle_don']) ?></td>
-                                    <td>
-                                        <span class="badge bg-<?= $badge_type[$attr['type_don']] ?> badge-sm">
-                                            <?= htmlspecialchars(strtoupper($attr['type_don'])) ?>
-                                        </span>
-                                    </td>
-                                    <td class="text-end"><?= number_format($attr['quantite'], 0, ',', ' ') ?></td>
-                                    <td class="text-end"><?= number_format($attr['montant'], 0, ',', ' ') ?> Ar</td>
-                                </tr>
-                                <?php endforeach; ?>
                             <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
             <?php else: ?>
-            <div class="alert alert-warning mt-3 mb-0">
-                Aucun don n'a encore été attribué à cette ville. 
-                <a href="/dispatch" class="alert-link">Lancer le dispatch</a>
-            </div>
+            <div class="alert alert-warning mb-0">Aucun don attribué pour cette ville.</div>
             <?php endif; ?>
         </div>
     </div>
     <?php endforeach; ?>
-
-    <!-- LÉGENDE -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <h6 class="card-title">Légende des statuts</h6>
-                    <span class="badge bg-danger me-2">Urgent</span> Aucun don reçu
-                    <span class="badge bg-warning text-dark mx-2">Partiel</span> Besoin partiellement satisfait
-                    <span class="badge bg-success mx-2">Satisfait</span> Besoin entièrement couvert
-                </div>
-            </div>
-        </div>
-    </div>
 </div>

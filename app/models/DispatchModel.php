@@ -18,11 +18,9 @@ class DispatchModel
 
     private function getDonsWithReste()
     {
-        $sql = "SELECT d.*, (d.quantite - IFNULL(SUM(a.quantite), 0)) AS reste
+        $sql = "SELECT d.*, d.quantite AS reste
                 FROM don d
-                LEFT JOIN attribution a ON a.id_don = d.id_don
-                GROUP BY d.id_don
-                HAVING reste > 0
+                WHERE d.quantite > 0
                 ORDER BY d.date_don ASC, d.id_don ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -31,11 +29,9 @@ class DispatchModel
 
     private function getBesoinsWithReste()
     {
-        $sql = "SELECT b.*, (b.quantite - IFNULL(SUM(a.quantite), 0)) AS reste
+        $sql = "SELECT b.*, b.quantite AS reste
                 FROM besoin b
-                LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
-                GROUP BY b.id_besoin
-                HAVING reste > 0
+                WHERE b.quantite > 0
                 ORDER BY b.date_besoin ASC, b.id_besoin ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -55,6 +51,13 @@ class DispatchModel
         $sql = "UPDATE don SET quantite = quantite - ? WHERE id_don = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$quantiteUtilisee, $idDon]);
+    }
+
+    private function updateBesoinQuantite($idBesoin, $quantiteUtilisee)
+    {
+        $sql = "UPDATE besoin SET quantite = quantite - ? WHERE id_besoin = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$quantiteUtilisee, $idBesoin]);
     }
 
     public function dispatchDons()
@@ -97,6 +100,7 @@ class DispatchModel
 
                     $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeDon);
                     $this->updateDonQuantite($don['id_don'], $quantiteAttribuee);
+                    $this->updateBesoinQuantite($besoin['id_besoin'], $quantiteAttribuee);
 
                     $resteDon -= $quantiteAttribuee;
                     $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;

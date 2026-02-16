@@ -120,14 +120,14 @@ class AllModels
                     b.id_besoin,
                     b.libelle_besoin,
                     b.type_besoin,
-                    b.quantite AS quantite_besoin,
+                    (b.quantite + COALESCE(SUM(a.quantite), 0)) AS quantite_besoin,
                     b.prix_unitaire,
                     b.date_besoin,
-                    (b.quantite * b.prix_unitaire) AS montant_besoin,
+                    ((b.quantite + COALESCE(SUM(a.quantite), 0)) * b.prix_unitaire) AS montant_besoin,
                     COALESCE(SUM(a.quantite), 0) AS quantite_recue,
                     COALESCE(SUM(a.quantite * b.prix_unitaire), 0) AS montant_recu,
-                    (b.quantite - COALESCE(SUM(a.quantite), 0)) AS quantite_reste,
-                    ((b.quantite - COALESCE(SUM(a.quantite), 0)) * b.prix_unitaire) AS montant_reste
+                    b.quantite AS quantite_reste,
+                    (b.quantite * b.prix_unitaire) AS montant_reste
                 FROM ville v
                 JOIN besoin b ON b.id_ville = v.id_ville
                 LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
@@ -170,14 +170,14 @@ class AllModels
                     d.id_don,
                     d.libelle_don,
                     d.type_don,
-                    d.quantite AS quantite_initiale,
+                    (d.quantite + COALESCE(SUM(a.quantite), 0)) AS quantite_initiale,
                     d.date_don,
                     COALESCE(SUM(a.quantite), 0) AS quantite_attribuee,
-                    (d.quantite - COALESCE(SUM(a.quantite), 0)) AS quantite_restante
+                    d.quantite AS quantite_restante
                 FROM don d
                 LEFT JOIN attribution a ON a.id_don = d.id_don
                 GROUP BY d.id_don, d.libelle_don, d.type_don, d.quantite, d.date_don
-                HAVING quantite_restante > 0
+                HAVING d.quantite > 0
                 ORDER BY d.date_don ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -211,8 +211,14 @@ class AllModels
         $stmt->execute();
         $stats['nombre_attributions'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
         
-        // Montant total des besoins
-        $stmt = $this->db->prepare("SELECT COALESCE(SUM(quantite * prix_unitaire), 0) as total FROM besoin");
+        // Montant total des besoins (quantité restante + attribuée)
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM((b.quantite + COALESCE(a.total_attrib, 0)) * b.prix_unitaire), 0) AS total
+                                    FROM besoin b
+                                    LEFT JOIN (
+                                        SELECT id_besoin, SUM(quantite) AS total_attrib
+                                        FROM attribution
+                                        GROUP BY id_besoin
+                                    ) a ON a.id_besoin = b.id_besoin");
         $stmt->execute();
         $stats['montant_total_besoins'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
         
@@ -253,7 +259,7 @@ class AllModels
                 LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
                 GROUP BY b.id_besoin, b.libelle_besoin, b.type_besoin, b.quantite, 
                          b.prix_unitaire, b.date_besoin, v.nom_ville
-                HAVING quantite_recue = 0 AND jours_attente >= ?
+                HAVING quantite_recue = 0 AND b.quantite > 0 AND jours_attente >= ?
                 ORDER BY jours_attente DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$jours]);

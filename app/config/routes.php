@@ -35,14 +35,10 @@ $router->group('', function(Router $router) use ($app) {
 	});
 
 	$router->get('/dispatch', function() use ($app) {
-		$controller = new StatsController();
-		$villes = $controller->getAllVilles();
-		$besoins = $controller->getAllBesoins();
-		$dons = $controller->getAllDons();
-		$villesBesoins = $controller->getVillesBesoins();
 		$dispatchController = new DispatchController();
-		$dispatchResult = $dispatchController->dispatch();
-		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins, 'dispatchResult' => $dispatchResult]);
+		$dispatchController->dispatch();
+		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
+		$app->redirect('/bord');
 	});	
 	$router->post('/dons', function() use ($app) {
 		$donController = new DonController();
@@ -69,13 +65,11 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/bord', function() use ($app) {
 		$controller = new StatsController();
 		
-		// Données du dashboard
 		$dashboardData = $controller->getDashboardData();
 		$stats = $controller->getStatsGlobales();
 		$donsEnAttente = $controller->getDonsEnAttente();
 		$besoinsUrgents = $controller->getBesoinsUrgents(3);
 		
-		// Organiser les données par ville
 		$villes = [];
 		foreach ($dashboardData as $row) {
 			$ville_id = $row['id_ville'];
@@ -86,7 +80,6 @@ $router->group('', function(Router $router) use ($app) {
 					'besoins' => []
 				];
 			}
-			// Calculer le statut
 			if ($row['quantite_recue'] == 0) {
 				$row['statut'] = 'urgent';
 			} elseif ($row['quantite_recue'] >= $row['quantite_besoin']) {
@@ -97,7 +90,6 @@ $router->group('', function(Router $router) use ($app) {
 			$villes[$ville_id]['besoins'][] = $row;
 		}
 		
-		// Récupérer les attributions pour chaque besoin
 		foreach ($villes as &$ville) {
 			foreach ($ville['besoins'] as &$besoin) {
 				$besoin['attributions'] = $controller->getAttributionsParBesoin($besoin['id_besoin']);
