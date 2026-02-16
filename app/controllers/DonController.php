@@ -1,12 +1,12 @@
 <?php
 namespace app\controllers;
-use app\Allmodels;
+use app\models\DonModel;
 use flight\Engine;
 use Flight;
 
 class DonController {
     function getAlltypes() {
-        $model = new Allmodels(Flight::db());
+        $model = new DonModel(Flight::db());
         $types = $model->getAllTypes();
         return $types;
     }
@@ -16,8 +16,8 @@ class DonController {
         $type = Flight::request()->data->type;
         $quantites = Flight::request()->data->quantites;
         $date = Flight::request()->data->date;
-        $model = new Allmodels(Flight::db());
+        $model = new DonModel(Flight::db());
         $model->createDon($description, $type, $quantites, $date);
-        Flight::redirect('/Don');
+        Flight::redirect('/dons');
     }
 }

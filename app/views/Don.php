@@ -5,7 +5,7 @@
                 <span class="bg-secondary pr-3">Doner votre dons</span>
             </h2>
             <div class="bg-light p-4 mb-5">
-                <form action="/don" method="POST">
+                <form action="/dons" method="POST">
                     <div class="form-group">
                         <label for='description'>Description du don</label>
                         <input type="text" class="form-control" id="description" name="description" placeholder="Entrez la description du don" required>
@@ -13,8 +13,8 @@
                     <div class="form-group">
                         <label for='type'>Type de don</label>
                         <select class="form-control" id="type" name="type" required>
-                            <?php foreach ($types as $type): ?>
-                                <option value="<?= $type['id'] ?>"><?= $type['name'] ?></option>
+                            <?php foreach ($type as $types): ?>
+                                <option value="<?= $types['id'] ?>"><?= $types['name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

@@ -66,7 +66,7 @@
 
                 <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                     <div class="navbar-nav ml-auto">
-                        <a href="index.html" class="nav-item nav-link active">Home</a>
+                        <a href="/" class="nav-item nav-link active">Home</a>
                         <a href="/bord" class="nav-item nav-link">Tableau de bords</a>
                         <a href="causes.html" class="nav-item nav-link">Causes</a>
                         <a href="event.html" class="nav-item nav-link">Events</a>

@@ -97,4 +97,17 @@ class AllModels
         return $result['total'];
     }
 
+    // ==============================
+    // TYPE DE DON
+    // ==============================
+    public function getAllTypes()
+    {
+        // Les types de don sont des ENUM dans la table don
+        $types = [
+            ['id' => 'nature', 'name' => 'Nature'],
+            ['id' => 'materiaux', 'name' => 'Matériaux'],
+            ['id' => 'argent', 'name' => 'Argent']
+        ];
+        return $types;
+    }
 }
