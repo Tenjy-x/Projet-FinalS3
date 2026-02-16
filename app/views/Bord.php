@@ -4,7 +4,7 @@
         <div class="col-12 text-center">
             <h2 class="mb-1">Tableau de bord</h2>
             <p class="text-muted mb-3">Liste des villes, besoins et dons attribués</p>
-            <a href="<?= BASE_URL ?>/dispatch" class="btn btn-primary">Lancer le dispatch</a>
+            <a href="<?= BASE_URL ?>dispatch" class="btn btn-primary">Lancer le dispatch</a>
         </div>
     </div>
 

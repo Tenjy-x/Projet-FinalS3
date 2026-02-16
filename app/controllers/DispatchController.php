@@ -4,19 +4,20 @@ namespace app\controllers;
 use app\models\DispatchModel;
 use app\models\Allmodels;
 use flight\Engine;
+use Flight;
 
 class DispatchController
 {
     protected Engine $app;
 
-    public function __construct(Engine $app)
-    {
-        $this->app = $app;
-    }
+    // public function __construct(Engine $app)
+    // {
+    //     $this->app = $app;
+    // }
 
     public function dispatch()
     {
-        $model = new DispatchModel($this->app->db());
+        $model = new DispatchModel(Flight::db());
         $result = $model->dispatchDons();
 
         // $this->app->json([
