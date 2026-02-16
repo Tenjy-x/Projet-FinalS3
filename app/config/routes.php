@@ -35,10 +35,21 @@ $router->group('', function(Router $router) use ($app) {
 	});
 
 	$router->get('/dispatch', function() use ($app) {
+<<<<<<< HEAD
 		$dispatchController = new DispatchController();
 		$dispatchController->dispatch();
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
 		$app->redirect('/bord');
+=======
+		$controller = new StatsController();
+		$villes = $controller->getAllVilles();
+		$besoins = $controller->getAllBesoins();
+		$dons = $controller->getAllDons();
+		$villesBesoins = $controller->getVillesBesoins();
+		$dispatchController = new DispatchController($app);
+		$dispatchResult = $dispatchController->dispatch();
+		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins, 'dispatchResult' => $dispatchResult]);
+>>>>>>> 406354e (Les modfication v2 pour demain  à revoir les fonctionalité)
 	});	
 
 	$router->post('/dons', function() use ($app) {
@@ -110,6 +121,25 @@ $router->group('', function(Router $router) use ($app) {
 		$router->get('/users', [ ApiExampleController::class, 'getUsers' ]);
 		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
 		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
+		
+		// API pour les achats
+		$router->post('/achat/simuler', [ DispatchController::class, 'simulerAchat' ]);
+		$router->post('/achat/valider', [ DispatchController::class, 'validerAchat' ]);
+		$router->get('/recap', [ DispatchController::class, 'getRecapGlobal' ]);
+	});
+
+	// Pages pour les achats et récapitulation
+	$router->get('/besoins-restants', [ DispatchController::class, 'pageBesoinsRestants' ]);
+	$router->get('/recap', [ DispatchController::class, 'pageRecap' ]);
+	$router->get('/achats', [ DispatchController::class, 'pageAchats' ]);
+	
+	// Page de configuration des frais
+	$router->get('/config-frais', [ DispatchController::class, 'pageConfigFrais' ]);
+	$router->post('/config-frais', [ DispatchController::class, 'pageConfigFrais' ]);
+
+	// Page de menu de test
+	$router->get('/menu-test', function() use ($app) {
+		$app->render('menu_test');
 	});
 
 

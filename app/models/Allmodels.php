@@ -105,6 +105,7 @@ class AllModels
         return $types;
     }
 
+<<<<<<< HEAD
     // ==============================
     // DASHBOARD - Requêtes sans modification de la base
     // ==============================
@@ -263,6 +264,158 @@ class AllModels
                 ORDER BY jours_attente DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$jours]);
+=======
+     public function getBesoinsRestants($idVille = null)
+    {
+        $sql = "SELECT * FROM v_besoins_restants WHERE reste > 0";
+        
+        if ($idVille !== null) {
+            $sql .= " AND id_ville = :id_ville";
+        }
+        
+        $sql .= " ORDER BY date_besoin ASC, id_besoin ASC";
+        
+        $stmt = $this->db->prepare($sql);
+        if ($idVille !== null) {
+            $stmt->bindValue(':id_ville', $idVille, \PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getQuantiteSatisfaite($idBesoin)
+    {
+        $sql = "SELECT quantite_satisfaite FROM v_besoins_restants WHERE id_besoin = :id_besoin";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id_besoin', $idBesoin, \PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int) ($result['quantite_satisfaite'] ?? 0);
+    }
+
+    public function verifierMontantSuffisant($idDon, $montantNecessaire)
+    {
+        $sql = "SELECT reste_argent FROM v_dons_argent_restants WHERE id_don = :id_don";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id_don', $idDon, \PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if (!$result) {
+            return false;
+        }
+        
+        return (float) $result['reste_argent'] >= $montantNecessaire;
+    }
+
+    public function getMontantRestantDon($idDon)
+    {
+        $sql = "SELECT reste_argent FROM v_dons_argent_restants WHERE id_don = :id_don";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id_don', $idDon, \PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ? (float) $result['reste_argent'] : 0;
+    }
+   public function createAttribution($idDon, $idBesoin, $quantite, $montant, $frais, $montantTotal)
+    {
+        $sql = "INSERT INTO achat (id_don, id_besoin, quantite, montant, frais, montant_total, date_achat)
+                VALUES (:id_don, :id_besoin, :quantite, :montant, :frais, :montant_total, CURRENT_TIMESTAMP)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id_don', $idDon, \PDO::PARAM_INT);
+        $stmt->bindValue(':id_besoin', $idBesoin, \PDO::PARAM_INT);
+        $stmt->bindValue(':quantite', $quantite, \PDO::PARAM_INT);
+        $stmt->bindValue(':montant', $montant, \PDO::PARAM_STR);
+        $stmt->bindValue(':frais', $frais, \PDO::PARAM_STR);
+        $stmt->bindValue(':montant_total', $montantTotal, \PDO::PARAM_STR);
+        
+        return $stmt->execute();
+    }
+
+    /**
+     * Récupère le récapitulatif global des besoins
+     * @return array Totaux, satisfaits et restants
+     */
+    public function getTotalSatisfait()
+    {
+        $sql = "SELECT * FROM v_recap_global";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return [
+            'montant_total' => (float) ($result['montant_total'] ?? 0),
+            'montant_satisfait' => (float) ($result['montant_satisfait'] ?? 0),
+            'montant_restant' => (float) ($result['montant_restant'] ?? 0)
+        ];
+    }
+
+    public function getDonsArgentRestants()
+    {
+        $sql = "SELECT * FROM v_dons_argent_restants WHERE reste_argent > 0 ORDER BY date_don ASC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère le pourcentage de frais depuis la configuration
+     * @return float Pourcentage de frais (ex: 10 pour 10%)
+     */
+    public function getFraisConfig()
+    {
+        $sql = "SELECT valeur_config FROM config WHERE cle_config = 'frais_achat'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ? (float) $result['valeur_config'] : 0;
+    }
+
+    /**
+     * Met à jour ou insère la configuration des frais
+     * @param float $frais Pourcentage de frais
+     * @return bool Succès de l'opération
+     */
+    public function setFraisConfig($frais)
+    {
+        $sql = "INSERT INTO config (cle_config, valeur_config) 
+                VALUES ('frais_achat', :frais)
+                ON DUPLICATE KEY UPDATE valeur_config = :frais";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':frais', $frais, \PDO::PARAM_STR);
+        return $stmt->execute();
+    }
+
+    /**
+     * Récupère tous les achats avec détails (via vue)
+     * @param int|null $idVille Filtrer par ville (optionnel)
+     * @return array Liste des achats avec détails
+     */
+    public function getAchatsDetails($idVille = null)
+    {
+        $sql = "SELECT * FROM v_achats_details";
+        
+        if ($idVille !== null) {
+            $sql .= " WHERE id_ville = :id_ville";
+        }
+        
+        $sql .= " ORDER BY date_achat DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        if ($idVille !== null) {
+            $stmt->bindValue(':id_ville', $idVille, \PDO::PARAM_INT);
+        }
+        $stmt->execute();
+>>>>>>> 406354e (Les modfication v2 pour demain  à revoir les fonctionalité)
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }
