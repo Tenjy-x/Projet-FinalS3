@@ -29,6 +29,12 @@ class AllModels
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public function getVillesBesoins() {
+        $st = $this->db->prepare("SELECT * FROM v_villeBesoin");
+        $st->execute();
+        return $st->fetchAll();
+    }
+
     // ==============================
     // BESOIN
     // ==============================

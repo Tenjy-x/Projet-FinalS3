@@ -1,5 +1,5 @@
 <?php
-
+use app\controllers\StatsController;
 use app\controllers\ApiExampleController;
 use app\controllers\BngrcController;
 use app\middlewares\SecurityHeadersMiddleware;
@@ -16,9 +16,26 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/', function() use ($app) {
 		$controller = new StatsController();
 		$villes = $controller->getAllVilles();
-		$besoins = $controller->getAllBesoin();
+		$besoins = $controller->getAllBesoins();
 		$dons = $controller->getAllDons();
 		$app->render('Modal', [ 'page' => 'welcome' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons]);
+	});
+
+	$router->get('/dons', function() use ($app) {
+		$controller = new StatsController();
+		$villes = $controller->getAllVilles();
+		$besoins = $controller->getAllBesoins();
+		$dons = $controller->getAllDons();
+		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons]);
+	});
+
+	$router->get('/bord', function() use ($app) {
+		$controller = new StatsController();
+		$villes = $controller->getAllVilles();
+		$besoins = $controller->getAllBesoins();
+		$dons = $controller->getAllDons();
+		$villesBesoins = $controller->getVillesBesoins();
+		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins]);
 	});
 
 
@@ -27,5 +44,7 @@ $router->group('', function(Router $router) use ($app) {
 		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
 		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
 	});
+
+
 
 }, [ SecurityHeadersMiddleware::class ]);

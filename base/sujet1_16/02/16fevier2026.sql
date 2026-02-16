@@ -33,13 +33,14 @@ CREATE TABLE besoin(
     FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
 );
 INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES
-('Riz', 'nature', 1000, 1.50, 1),
+('Riz', 'nature',  1000, 1.50, 1),
 ('Huile', 'nature', 500, 2.00, 1),
 ('Tôles', 'materiaux', 200, 5.00, 2),
 ('Clous', 'materiaux', 5000, 0.10, 2),
 ('Fonds pour école', 'argent', 100000, 1.00, 3),
 ('Médicaments', 'nature', 200, 3.50, 4),
 ('Ciment', 'materiaux', 1500, 0.80, 5);
+
 
 -- =========================================
 -- TABLE DON
@@ -55,7 +56,7 @@ CREATE TABLE don(
 INSERT INTO don (libelle_don, type_don, quantite, date_don) VALUES
 ('Don de riz - Association X', 'nature', 500, '2026-02-10'),
 ('Don de tôles - Entreprise Y', 'materiaux', 100, '2026-02-12'),
-('Don financier - Privé', 'argent', 50000, '2026-02-14'),
+('Don financier - Privé', 'ar       gent', 50000, '2026-02-14'),
 ('Don huile - ONG Z', 'nature', 300, '2026-02-15'),
 ('Don de clous - Magasin', 'materiaux', 3000, '2026-02-13'),
 ('Don financier - Collecte', 'argent', 75000, '2026-02-11'),
@@ -72,6 +73,22 @@ CREATE TABLE attribution(
     FOREIGN KEY(id_don) REFERENCES don(id_don),
     FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin)
 );
+
+-- =========================================
+-- VIEW VILLE_BESOIN
+-- =========================================
+CREATE OR REPLACE VIEW v_villeBesoin AS
+SELECT
+    v.id_ville,
+    v.nom_ville,
+    b.id_besoin,
+    b.libelle_besoin,
+    b.type_besoin,
+    b.quantite,
+    b.prix_unitaire,
+    (b.quantite * b.prix_unitaire) AS montant_total
+FROM ville v
+JOIN besoin b ON b.id_ville = v.id_ville;
 
 
 

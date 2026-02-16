@@ -1,6 +1,6 @@
 <?php
 namespace app\controllers;
-use app\Allmodels;
+use app\models\Allmodels;
 use flight\Engine;
 use Flight;
 
@@ -15,5 +15,17 @@ class StatsController {
         $model = new Allmodels(Flight::db());
         $besoins = $model->getAllBesoin();
         return $besoins;
+    }
+
+    function getAllDons() {
+        $model = new Allmodels(Flight::db());
+        $dons = $model->getAllDon();
+        return $dons;
+    }
+
+    function getVillesBesoins() {
+        $model =  new Allmodels(Flight::db());
+        $villesBesoins = $model->getVillesBesoins();
+        return $villesBesoins;
     }
 }
