@@ -1,6 +1,7 @@
 <?php
 use app\controllers\StatsController;
 use app\controllers\ApiExampleController;
+use app\controllers\BesoinController;
 use app\controllers\BngrcController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
