@@ -18,7 +18,7 @@
             <?php endif; ?>
             
             <div class="bg-light p-4 mb-5">
-                <form action="/besoin" method="POST">
+                <form action="<?= BASE_URL ?>/besoin" method="POST">
                     <div class="form-group">
                         <label for='libelle_besoin'>Description du besoin</label>
                         <input type="text" class="form-control" id="libelle_besoin" name="libelle_besoin" placeholder="Entrez la description du besoin" required>

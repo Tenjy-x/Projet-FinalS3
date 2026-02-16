@@ -8,7 +8,7 @@
         <meta content="Free Website Template" name="description">
 
         <!-- Favicon -->
-        <link href="/assets/img/favicon.ico" rel="icon">
+        <link href="<?= BASE_URL ?>assets/img/favicon.ico" rel="icon">
 
         <!-- Google Font -->
         <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,12 +16,24 @@
         <!-- CSS Libraries -->
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-        <link href="/assets/lib/flaticon/font/flaticon.css" rel="stylesheet">
-        <link href="/assets/lib/animate/animate.min.css" rel="stylesheet">
-        <link href="/assets/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+        <link href="<?= BASE_URL ?>assets/lib/flaticon/font/flaticon.css" rel="stylesheet">
+        <link href="<?= BASE_URL ?>assets/lib/animate/animate.min.css" rel="stylesheet">
+        <link href="<?= BASE_URL ?>assets/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="/assets/css/style.css" rel="stylesheet">
+        <link href="<?= BASE_URL ?>assets/css/style.css" rel="stylesheet">
+        <style>
+            .navbar-dark .navbar-nav .nav-link,
+            .navbar-dark .navbar-nav .nav-link.active,
+            .navbar-dark .navbar-brand {
+                color: #ff9800;
+            }
+
+            .navbar-dark .navbar-nav .nav-link:hover,
+            .navbar-dark .navbar-brand:hover {
+                color: #ffa726;
+            }
+        </style>
     </head>
 
     <body>
@@ -66,8 +78,8 @@
 
                 <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                     <div class="navbar-nav ml-auto">
-                        <a href="/" class="nav-item nav-link active">Home</a>
-                        <a href="/bord" class="nav-item nav-link">Tableau de bords</a>
+                        <a href="<?= BASE_URL ?>" class="nav-item nav-link active">Home</a>
+                        <a href="<?= BASE_URL ?>bord" class="nav-item nav-link">Tableau de bords</a>
                         <a href="causes.html" class="nav-item nav-link">Causes</a>
                         <a href="event.html" class="nav-item nav-link">Events</a>
                         <a href="blog.html" class="nav-item nav-link">Blog</a>
@@ -148,10 +160,10 @@
             <div class="container copyright">
                 <div class="row">
                     <div class="col-md-6">
-                        <p>&copy; <a href="#">Your Site Name</a>, All Right Reserved.</p>
+                        <p>&copy; <a href="#">ETU 003920 / ETU 004161 / ETU 003994 </a>, All Right Reserved.</p>
                     </div>
                     <div class="col-md-6">
-                        <p>Designed By <a href="https://htmlcodex.com">HTML Codex</a></p>
+                        <p>Designed By <a href="https://htmlcodex.com">THM</a></p>
                     </div>
                 </div>
             </div>
@@ -169,17 +181,17 @@
         <!-- JavaScript Libraries -->
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-        <script src="/assets/lib/easing/easing.min.js"></script>
-        <script src="/assets/lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="/assets/lib/waypoints/waypoints.min.js"></script>
-        <script src="/assets/lib/counterup/counterup.min.js"></script>
-        <script src="/assets/lib/parallax/parallax.min.js"></script>
+        <script src="<?= BASE_URL ?>assets/lib/easing/easing.min.js"></script>
+        <script src="<?= BASE_URL ?>assets/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="<?= BASE_URL ?>assets/lib/waypoints/waypoints.min.js"></script>
+        <script src="<?= BASE_URL ?>assets/lib/counterup/counterup.min.js"></script>
+        <script src="<?= BASE_URL ?>assets/lib/parallax/parallax.min.js"></script>
         
         <!-- Contact Javascript File -->
-        <script src="/assets/mail/jqBootstrapValidation.min.js"></script>
-        <script src="/assets/mail/contact.js"></script>
+        <script src="<?= BASE_URL ?>assets/mail/jqBootstrapValidation.min.js"></script>
+        <script src="<?= BASE_URL ?>assets/mail/contact.js"></script>
 
         <!-- Template Javascript -->
-        <script src="/assets/js/main.js"></script>
+        <script src="<?= BASE_URL ?>assets/js/main.js"></script>
     </body>
 </html>

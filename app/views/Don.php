@@ -17,7 +17,7 @@
                 </div>
             <?php endif; ?>
             <div class="bg-light p-4 mb-5">
-                <form action="/dons" method="POST">
+                <form action="<?= BASE_URL ?>/dons" method="POST">
                     <div class="form-group">
                         <label for='description'>Description du don</label>
                         <input type="text" class="form-control" id="description" name="description" placeholder="Entrez la description du don" required>

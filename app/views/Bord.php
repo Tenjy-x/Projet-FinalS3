@@ -1,10 +1,10 @@
-<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
+<div class="container mt-4" style="padding-top: 100px; padding-bottom: 50px;">
 
     <div class="row mb-4">
         <div class="col-12 text-center">
             <h2 class="mb-1">Tableau de bord</h2>
             <p class="text-muted mb-3">Liste des villes, besoins et dons attribués</p>
-            <a href="/dispatch" class="btn btn-primary">Lancer le dispatch</a>
+            <a href="<?= BASE_URL ?>/dispatch" class="btn btn-primary">Lancer le dispatch</a>
         </div>
     </div>
 
@@ -54,7 +54,6 @@
     
     <?php foreach ($villes as $ville): ?>
     <?php
-    // Calculer les totaux pour cette ville
     $montant_total = 0;
     $montant_recu = 0;
     $nb_urgent = 0;

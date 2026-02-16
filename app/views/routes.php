@@ -34,11 +34,11 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('Modal', [ 'page' => 'Don' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons, 'type' => $type]);
 	});
 
-	$router->get('/dispatch', function() use ($app) {
+	$router->get(BASE_URL . '/dispatch', function() use ($app) {
 		$dispatchController = new DispatchController();
 		$dispatchController->dispatch();
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
-		$app->redirect('/bord');
+		$app->redirect(BASE_URL . '/bord');
 	});	
 	$router->post('/dons', function() use ($app) {
 		$donController = new DonController();
@@ -58,9 +58,9 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('Modal', $data);
 	});
 
-	$router->get('/besoin', [ BesoinController::class, 'showForm' ]);
+	$router->get(BASE_URL . '/besoin', [ BesoinController::class, 'showForm' ]);
 
-	$router->post('/besoin', [ BesoinController::class, 'insertBesoin' ]);
+	$router->post(BASE_URL . '/besoin', [ BesoinController::class, 'insertBesoin' ]);
 
 	$router->get('/bord', function() use ($app) {
 		$controller = new StatsController();
