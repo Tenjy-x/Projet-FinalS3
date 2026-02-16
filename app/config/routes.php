@@ -28,4 +28,8 @@ $router->group('', function(Router $router) use ($app) {
 		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
 	});
 
+<<<<<<< HEAD
+=======
+	
+>>>>>>> d2ec5ca (don_ary_e)
 }, [ SecurityHeadersMiddleware::class ]);
