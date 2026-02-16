@@ -38,6 +38,10 @@ $router->group('', function(Router $router) use ($app) {
 		$donController->createDon();
 	});
 
+	$router->get('/besoin', [ BesoinController::class, 'showForm' ]);
+	
+	$router->post('/besoin', [ BesoinController::class, 'insertBesoin' ]);
+
 	$router->get('/bord', function() use ($app) {
 		$controller = new StatsController();
 		$villes = $controller->getAllVilles();
