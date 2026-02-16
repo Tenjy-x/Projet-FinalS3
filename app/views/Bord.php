@@ -113,8 +113,8 @@
                         <tr class="<?= $besoin['statut'] === 'urgent' ? 'table-danger' : '' ?>">
                             <td><strong><?= htmlspecialchars($besoin['libelle_besoin']) ?></strong></td>
                             <td>
-                                <span class="badge bg-<?= $badge_type[$besoin['type_besoin']] ?>">
-                                    <?= htmlspecialchars(strtoupper($besoin['type_besoin'])) ?>
+                                <span class="badge bg-<?= $badge_type[$besoin['nom_type']] ?>">
+                                    <?= htmlspecialchars(strtoupper($besoin['nom_type'])) ?>
                                 </span>
                             </td>
                             <td class="text-end"><?= number_format($besoin['quantite_besoin'], 0, ',', ' ') ?></td>
@@ -170,8 +170,8 @@
                                 <td><?= htmlspecialchars($besoin['libelle_besoin']) ?></td>
                                 <td><?= htmlspecialchars($attr['libelle_don']) ?></td>
                                 <td>
-                                    <span class="badge bg-<?= $badge_type[$attr['type_don']] ?>">
-                                        <?= htmlspecialchars(strtoupper($attr['type_don'])) ?>
+                                    <span class="badge bg-<?= $badge_type[$attr['nom_type']] ?>">
+                                        <?= htmlspecialchars(strtoupper($attr['nom_type'])) ?>
                                     </span>
                                 </td>
                                 <td class="text-end"><?= number_format($attr['quantite'], 0, ',', ' ') ?></td>

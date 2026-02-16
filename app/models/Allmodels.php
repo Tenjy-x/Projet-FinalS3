@@ -34,7 +34,7 @@ class AllModels
     }
     public function insertBesoin($data)
     {
-        $sql = "INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) 
+        $sql = "INSERT INTO besoin (libelle_besoin, id_type, quantite, prix_unitaire, id_ville) 
                 VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($data);
@@ -91,18 +91,11 @@ class AllModels
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    // ==============================
-    // TYPE DE DON
-    // ==============================
     public function getAllTypes()
     {
-        // Les types de don sont des ENUM dans la table don
-        $types = [
-            ['id' => 'nature', 'name' => 'Nature'],
-            ['id' => 'materiaux', 'name' => 'Matériaux'],
-            ['id' => 'argent', 'name' => 'Argent']
-        ];
-        return $types;
+        $stmt = $this->db->prepare("SELECT id_type, nom_type FROM type");
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     // ==============================
@@ -119,7 +112,7 @@ class AllModels
                     v.nom_ville,
                     b.id_besoin,
                     b.libelle_besoin,
-                    b.type_besoin,
+                    t.nom_type,
                     (b.quantite + COALESCE(SUM(a.quantite), 0)) AS quantite_besoin,
                     b.prix_unitaire,
                     b.date_besoin,
@@ -130,9 +123,10 @@ class AllModels
                     (b.quantite * b.prix_unitaire) AS montant_reste
                 FROM ville v
                 JOIN besoin b ON b.id_ville = v.id_ville
+                JOIN type t ON t.id_type = b.id_type
                 LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
                 GROUP BY v.id_ville, v.nom_ville, b.id_besoin, b.libelle_besoin, 
-                         b.type_besoin, b.quantite, b.prix_unitaire, b.date_besoin
+                         t.nom_type, b.quantite, b.prix_unitaire, b.date_besoin
                 ORDER BY v.nom_ville, b.date_besoin";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -149,10 +143,11 @@ class AllModels
                     a.date_attribution,
                     a.quantite,
                     d.libelle_don,
-                    d.type_don,
+                    t.nom_type,
                     (a.quantite * b.prix_unitaire) AS montant
                 FROM attribution a
                 JOIN don d ON d.id_don = a.id_don
+                JOIN type t ON t.id_type = d.id_type
                 JOIN besoin b ON b.id_besoin = a.id_besoin
                 WHERE a.id_besoin = ?
                 ORDER BY a.date_attribution DESC";
@@ -169,14 +164,15 @@ class AllModels
         $sql = "SELECT 
                     d.id_don,
                     d.libelle_don,
-                    d.type_don,
+                    t.nom_type,
                     (d.quantite + COALESCE(SUM(a.quantite), 0)) AS quantite_initiale,
                     d.date_don,
                     COALESCE(SUM(a.quantite), 0) AS quantite_attribuee,
                     d.quantite AS quantite_restante
                 FROM don d
+                JOIN type t ON t.id_type = d.id_type
                 LEFT JOIN attribution a ON a.id_don = d.id_don
-                GROUP BY d.id_don, d.libelle_don, d.type_don, d.quantite, d.date_don
+                GROUP BY d.id_don, d.libelle_don, t.nom_type, d.quantite, d.date_don
                 HAVING d.quantite > 0
                 ORDER BY d.date_don ASC";
         $stmt = $this->db->prepare($sql);
@@ -247,7 +243,7 @@ class AllModels
         $sql = "SELECT 
                     b.id_besoin,
                     b.libelle_besoin,
-                    b.type_besoin,
+                    t.nom_type,
                     b.quantite,
                     b.prix_unitaire,
                     b.date_besoin,
@@ -256,8 +252,9 @@ class AllModels
                     COALESCE(SUM(a.quantite), 0) AS quantite_recue
                 FROM besoin b
                 JOIN ville v ON v.id_ville = b.id_ville
+                JOIN type t ON t.id_type = b.id_type
                 LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
-                GROUP BY b.id_besoin, b.libelle_besoin, b.type_besoin, b.quantite, 
+                GROUP BY b.id_besoin, b.libelle_besoin, t.nom_type, b.quantite, 
                          b.prix_unitaire, b.date_besoin, v.nom_ville
                 HAVING quantite_recue = 0 AND b.quantite > 0 AND jours_attente >= ?
                 ORDER BY jours_attente DESC";

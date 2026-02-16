@@ -1,77 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuration des Frais - BNGRC</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .config-card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            border: none;
-        }
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px 10px 0 0 !important;
-            padding: 20px;
-        }
-        .btn-save {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 12px 40px;
-            font-weight: 600;
-        }
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
-        }
-        .info-box {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .example-box {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-cog"></i> BNGRC - Configuration
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/">Accueil</a>
-                <a class="nav-link" href="/besoins-restants">Achats</a>
-                <a class="nav-link" href="/achats">Historique</a>
-                <a class="nav-link" href="/recap">Récapitulatif</a>
-                <a class="nav-link active" href="/config-frais">
-                    <i class="fas fa-cog"></i> Configuration
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-5">
+<div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <!-- Messages de succès/erreur -->
@@ -197,7 +124,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Mise à jour dynamique de l'exemple
         document.getElementById('frais').addEventListener('input', function() {
@@ -230,6 +157,4 @@
                 bsAlert.close();
             });
         }, 5000);
-    </script>
-</body>
-</html>
+</script>

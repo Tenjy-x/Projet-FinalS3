@@ -100,7 +100,7 @@ class DispatchController
             }
 
             // Vérifier le type de besoin (ne peut pas être argent)
-            if ($besoin['type_besoin'] === 'argent') {
+            if ($besoin['nom_type'] === 'argent') {
                 $this->app->json([
                     'success' => false,
                     'error' => 'Les besoins en argent ne peuvent pas être achetés'
@@ -137,7 +137,7 @@ class DispatchController
                 'simulation' => [
                     'besoin' => $besoin['libelle_besoin'],
                     'ville' => $besoin['nom_ville'],
-                    'type' => $besoin['type_besoin'],
+                    'type' => $besoin['nom_type'],
                     'quantite' => $quantite,
                     'prix_unitaire' => $prixUnitaire,
                     'montant_base' => $calcul['montant'],
@@ -213,7 +213,7 @@ class DispatchController
             }
 
             // Vérifier le type de besoin (ne peut pas être argent)
-            if ($besoin['type_besoin'] === 'argent') {
+            if ($besoin['nom_type'] === 'argent') {
                 $db->rollBack();
                 $this->app->json([
                     'success' => false,
