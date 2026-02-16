@@ -46,8 +46,25 @@ $router->group('', function(Router $router) use ($app) {
 	});	
 	$router->post('/dons', function() {
 		$donController = new DonController();
-		$donController->createDon();
+		$result = $donController->createDon();
+		$controller = new StatsController();
+		$villes = $controller->getAllVilles();
+		$besoins = $controller->getAllBesoins();
+		$dons = $controller->getAllDons();
+		$type = $donController->getAlltypes();
+		$data = [ 'page' => 'Don', 'villes' => $villes, 'besoins' => $besoins, 'dons' => $dons, 'type' => $type ];
+		if (isset($result['success'])) {
+			$data['success'] = $result['success'];
+		}
+		if (isset($result['error'])) {
+			$data['error'] = $result['error'];
+		}
+		$app->render('Modal', $data);
 	});
+
+	$router->get('/besoin', [ BesoinController::class, 'showForm' ]);
+	
+	$router->post('/besoin', [ BesoinController::class, 'insertBesoin' ]);
 
 	$router->get('/bord', function() use ($app) {
 		$controller = new StatsController();
