@@ -97,6 +97,13 @@ class AllModels
         return $result['total'];
     }
 
+    public function getAttributionDetails()
+    {
+        $stmt = $this->db->prepare("SELECT * FROM v_attribution_details");
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     // ==============================
     // TYPE DE DON
     // ==============================
@@ -109,5 +116,160 @@ class AllModels
             ['id' => 'argent', 'name' => 'Argent']
         ];
         return $types;
+    }
+
+    // ==============================
+    // DASHBOARD - Requêtes sans modification de la base
+    // ==============================
+    
+    /**
+     * Récupère les besoins avec les quantités attribuées pour chaque ville
+     */
+    public function getDashboardData()
+    {
+        $sql = "SELECT 
+                    v.id_ville,
+                    v.nom_ville,
+                    b.id_besoin,
+                    b.libelle_besoin,
+                    b.type_besoin,
+                    b.quantite AS quantite_besoin,
+                    b.prix_unitaire,
+                    b.date_besoin,
+                    (b.quantite * b.prix_unitaire) AS montant_besoin,
+                    COALESCE(SUM(a.quantite), 0) AS quantite_recue,
+                    COALESCE(SUM(a.quantite * b.prix_unitaire), 0) AS montant_recu,
+                    (b.quantite - COALESCE(SUM(a.quantite), 0)) AS quantite_reste,
+                    ((b.quantite - COALESCE(SUM(a.quantite), 0)) * b.prix_unitaire) AS montant_reste
+                FROM ville v
+                JOIN besoin b ON b.id_ville = v.id_ville
+                LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
+                GROUP BY v.id_ville, v.nom_ville, b.id_besoin, b.libelle_besoin, 
+                         b.type_besoin, b.quantite, b.prix_unitaire, b.date_besoin
+                ORDER BY v.nom_ville, b.date_besoin";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère les attributions pour un besoin spécifique
+     */
+    public function getAttributionsParBesoin($id_besoin)
+    {
+        $sql = "SELECT 
+                    a.id_attribution,
+                    a.date_attribution,
+                    a.quantite,
+                    d.libelle_don,
+                    d.type_don,
+                    (a.quantite * b.prix_unitaire) AS montant
+                FROM attribution a
+                JOIN don d ON d.id_don = a.id_don
+                JOIN besoin b ON b.id_besoin = a.id_besoin
+                WHERE a.id_besoin = ?
+                ORDER BY a.date_attribution DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_besoin]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère les dons en attente (non attribués ou partiellement attribués)
+     */
+    public function getDonsEnAttente()
+    {
+        $sql = "SELECT 
+                    d.id_don,
+                    d.libelle_don,
+                    d.type_don,
+                    d.quantite AS quantite_initiale,
+                    d.date_don,
+                    COALESCE(SUM(a.quantite), 0) AS quantite_attribuee,
+                    (d.quantite - COALESCE(SUM(a.quantite), 0)) AS quantite_restante
+                FROM don d
+                LEFT JOIN attribution a ON a.id_don = d.id_don
+                GROUP BY d.id_don, d.libelle_don, d.type_don, d.quantite, d.date_don
+                HAVING quantite_restante > 0
+                ORDER BY d.date_don ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Statistiques globales
+     */
+    public function getStatsGlobales()
+    {
+        $stats = [];
+        
+        // Nombre de villes
+        $stmt = $this->db->prepare("SELECT COUNT(DISTINCT id_ville) as total FROM ville");
+        $stmt->execute();
+        $stats['nombre_villes'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+        
+        // Nombre de besoins
+        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM besoin");
+        $stmt->execute();
+        $stats['nombre_besoins'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+        
+        // Nombre de dons
+        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM don");
+        $stmt->execute();
+        $stats['nombre_dons'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+        
+        // Nombre d'attributions
+        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM attribution");
+        $stmt->execute();
+        $stats['nombre_attributions'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+        
+        // Montant total des besoins
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(quantite * prix_unitaire), 0) as total FROM besoin");
+        $stmt->execute();
+        $stats['montant_total_besoins'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+        
+        // Montant total reçu
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(a.quantite * b.prix_unitaire), 0) as total 
+                                    FROM attribution a 
+                                    JOIN besoin b ON a.id_besoin = b.id_besoin");
+        $stmt->execute();
+        $stats['montant_total_recu'] = $stmt->fetch(\PDO::FETCH_ASSOC)['total'];
+        
+        // Taux de satisfaction
+        if ($stats['montant_total_besoins'] > 0) {
+            $stats['taux_satisfaction'] = round(($stats['montant_total_recu'] / $stats['montant_total_besoins']) * 100, 2);
+        } else {
+            $stats['taux_satisfaction'] = 0;
+        }
+        
+        return $stats;
+    }
+
+    /**
+     * Besoins urgents (aucun don reçu depuis plus de X jours)
+     */
+    public function getBesoinsUrgents($jours = 3)
+    {
+        $sql = "SELECT 
+                    b.id_besoin,
+                    b.libelle_besoin,
+                    b.type_besoin,
+                    b.quantite,
+                    b.prix_unitaire,
+                    b.date_besoin,
+                    v.nom_ville,
+                    DATEDIFF(NOW(), b.date_besoin) AS jours_attente,
+                    COALESCE(SUM(a.quantite), 0) AS quantite_recue
+                FROM besoin b
+                JOIN ville v ON v.id_ville = b.id_ville
+                LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
+                GROUP BY b.id_besoin, b.libelle_besoin, b.type_besoin, b.quantite, 
+                         b.prix_unitaire, b.date_besoin, v.nom_ville
+                HAVING quantite_recue = 0 AND jours_attente >= ?
+                ORDER BY jours_attente DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$jours]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

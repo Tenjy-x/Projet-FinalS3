@@ -29,4 +29,35 @@ class StatsController {
         $villesBesoins = $model->getVillesBesoins();
         return $villesBesoins;
     }
+
+    function getAttributionDetails() {
+        $model = new Allmodels(Flight::db());
+        $attributions = $model->getAttributionDetails();
+        return $attributions;
+    }
+
+    function getDashboardData() {
+        $model = new Allmodels(Flight::db());
+        return $model->getDashboardData();
+    }
+
+    function getStatsGlobales() {
+        $model = new Allmodels(Flight::db());
+        return $model->getStatsGlobales();
+    }
+
+    function getAttributionsParBesoin($id_besoin) {
+        $model = new Allmodels(Flight::db());
+        return $model->getAttributionsParBesoin($id_besoin);
+    }
+
+    function getDonsEnAttente() {
+        $model = new Allmodels(Flight::db());
+        return $model->getDonsEnAttente();
+    }
+
+    function getBesoinsUrgents($jours = 3) {
+        $model = new Allmodels(Flight::db());
+        return $model->getBesoinsUrgents($jours);
+    }
 }

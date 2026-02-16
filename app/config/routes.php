@@ -44,7 +44,7 @@ $router->group('', function(Router $router) use ($app) {
 		$dispatchResult = $dispatchController->dispatch();
 		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins, 'dispatchResult' => $dispatchResult]);
 	});	
-	$router->post('/dons', function() {
+	$router->post('/dons', function() use ($app) {
 		$donController = new DonController();
 		$result = $donController->createDon();
 		$controller = new StatsController();
@@ -68,11 +68,49 @@ $router->group('', function(Router $router) use ($app) {
 
 	$router->get('/bord', function() use ($app) {
 		$controller = new StatsController();
-		$villes = $controller->getAllVilles();
-		$besoins = $controller->getAllBesoins();
-		$dons = $controller->getAllDons();
-		$villesBesoins = $controller->getVillesBesoins();
-		$app->render('Modal', [ 'page' => 'Bord' , 'villes' => $villes , 'besoins' => $besoins , 'dons' => $dons , 'villesBesoins' => $villesBesoins]);
+		
+		// Données du dashboard
+		$dashboardData = $controller->getDashboardData();
+		$stats = $controller->getStatsGlobales();
+		$donsEnAttente = $controller->getDonsEnAttente();
+		$besoinsUrgents = $controller->getBesoinsUrgents(3);
+		
+		// Organiser les données par ville
+		$villes = [];
+		foreach ($dashboardData as $row) {
+			$ville_id = $row['id_ville'];
+			if (!isset($villes[$ville_id])) {
+				$villes[$ville_id] = [
+					'id_ville' => $row['id_ville'],
+					'nom_ville' => $row['nom_ville'],
+					'besoins' => []
+				];
+			}
+			// Calculer le statut
+			if ($row['quantite_recue'] == 0) {
+				$row['statut'] = 'urgent';
+			} elseif ($row['quantite_recue'] >= $row['quantite_besoin']) {
+				$row['statut'] = 'complet';
+			} else {
+				$row['statut'] = 'partiel';
+			}
+			$villes[$ville_id]['besoins'][] = $row;
+		}
+		
+		// Récupérer les attributions pour chaque besoin
+		foreach ($villes as &$ville) {
+			foreach ($ville['besoins'] as &$besoin) {
+				$besoin['attributions'] = $controller->getAttributionsParBesoin($besoin['id_besoin']);
+			}
+		}
+		
+		$app->render('Modal', [ 
+			'page' => 'Bord',
+			'villes' => $villes,
+			'stats' => $stats,
+			'donsEnAttente' => $donsEnAttente,
+			'besoinsUrgents' => $besoinsUrgents
+		]);
 	});
 	
 	$router->group('/api', function() use ($router) {

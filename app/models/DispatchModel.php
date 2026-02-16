@@ -50,6 +50,13 @@ class DispatchModel
         return $stmt->execute([$idDon, $idBesoin, $quantite, $typeEffectif]);
     }
 
+    private function updateDonQuantite($idDon, $quantiteUtilisee)
+    {
+        $sql = "UPDATE don SET quantite = quantite - ? WHERE id_don = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$quantiteUtilisee, $idDon]);
+    }
+
     public function dispatchDons()
     {
         $this->db->beginTransaction();
@@ -72,9 +79,9 @@ class DispatchModel
                     }
                     $typeBesoin = $besoin['type_besoin'];
                     $typeDon = $don['type_don'];
-                    $prixUnitaire = (float) $besoin['prix_unitaire'];
 
-                    if ($typeDon !== 'argent' && $typeBesoin !== $typeDon) {
+                    // Seulement même type
+                    if ($typeBesoin !== $typeDon) {
                         continue;
                     }
 
@@ -83,31 +90,16 @@ class DispatchModel
                         continue;
                     }
 
-                    if ($typeDon === 'argent' && $typeBesoin !== 'argent') {
-                        if ($prixUnitaire <= 0) {
-                            continue;
-                        }
-                        $maxUnites = (int) floor($resteDon / $prixUnitaire);
-                        $quantiteAttribuee = min($resteBesoin, $maxUnites);
-                        if ($quantiteAttribuee <= 0) {
-                            continue;
-                        }
-
-                        $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeBesoin);
-
-                        $resteDon -= (int) ($quantiteAttribuee * $prixUnitaire);
-                        $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
-                    } else {
-                        $quantiteAttribuee = min($resteDon, $resteBesoin);
-                        if ($quantiteAttribuee <= 0) {
-                            continue;
-                        }
-
-                        $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeDon);
-
-                        $resteDon -= $quantiteAttribuee;
-                        $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
+                    $quantiteAttribuee = min($resteDon, $resteBesoin);
+                    if ($quantiteAttribuee <= 0) {
+                        continue;
                     }
+
+                    $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee, $typeDon);
+                    $this->updateDonQuantite($don['id_don'], $quantiteAttribuee);
+
+                    $resteDon -= $quantiteAttribuee;
+                    $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
 
                     $totalAttributions += 1;
                     $totalQuantite += $quantiteAttribuee;
