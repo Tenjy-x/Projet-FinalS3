@@ -32,7 +32,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for='quantites'>Quantités</label>
+                        <label for='quantites'>Quantités / Montant</label>
                         <input type="number" class="form-control" id="quantites" name="quantites" placeholder="Entrez la quantité du don" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Soumettre</button>

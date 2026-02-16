@@ -11,13 +11,10 @@ class AllModels
         $this->db = $db;
     }
 
-    // ==============================
-    // VILLE
-    // ==============================
     public function countVille()
     {
         $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM ville");
-        $stmt->execute(); // obligatoire
+        $stmt->execute();
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['total'];
     }
@@ -25,19 +22,16 @@ class AllModels
     public function getAllVilles()
     {
         $stmt = $this->db->prepare("SELECT * FROM ville");
-        $stmt->execute(); // obligatoire
+        $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function getVillesBesoins() {
+    public function getVillesBesoins()
+    {
         $st = $this->db->prepare("SELECT * FROM v_villeBesoin");
         $st->execute();
         return $st->fetchAll();
     }
-
-    // ==============================
-    // BESOIN
-    // ==============================
     public function insertBesoin($data)
     {
         $sql = "INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) 
@@ -60,10 +54,6 @@ class AllModels
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['total'];
     }
-
-    // ==============================
-    // DON
-    // ==============================
     public function countDon()
     {
         $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM don");
@@ -79,9 +69,6 @@ class AllModels
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    // ==============================
-    // ATTRIBUTION
-    // ==============================
     public function getAllAttributions()
     {
         $stmt = $this->db->prepare("SELECT * FROM attribution");
