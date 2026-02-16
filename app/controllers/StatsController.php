@@ -10,15 +10,4 @@ class StatsController {
         $villes = $model->getAllVilles();
         return $villes;
     }
-    
-<<<<<<< HEAD
-    function getAllBesoins() {
-        $model = new Allmodels(Flight::db());
-=======
-    function getAllBesoin() {
-        $model = new AllModels(Flight::db());
->>>>>>> 5dafc4c (commt farany)
-        $besoins = $model->getAllBesoin();
-        return $besoins;
-    }
 }
