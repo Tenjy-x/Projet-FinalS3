@@ -33,17 +33,15 @@ CREATE TABLE besoin(
     id_ville INT,
     FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
 );
-INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES
-('Riz', 'nature',  1000, 1.50, 1),
-('Huile', 'nature', 500, 2.00, 1),
-('Tôles', 'materiaux', 200, 5.00, 2),
-('Clous', 'materiaux', 5000, 0.10, 2),
-('Fonds pour école', 'argent', 100000, 1.00, 3),
-('Médicaments', 'nature', 200, 3.50, 4),
-('Ciment', 'materiaux', 1500, 0.80, 5);
+INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, date_besoin, id_ville) VALUES
+('Riz', 'nature',  1000, 1.50, '2026-02-10', 1),
+('Huile', 'nature', 500, 2.00, '2026-02-11', 1),
+('Tôles', 'materiaux', 200, 5.00, '2026-02-12', 2),
+('Clous', 'materiaux', 5000, 0.10, '2026-02-12', 2),
+('Fonds pour école', 'argent', 100000, 1.00, '2026-02-13', 3),
+('Médicaments', 'nature', 200, 3.50, '2026-02-14', 4),
+('Ciment', 'materiaux', 1500, 0.80, '2026-02-15', 5);
 
-INSERT INTO besoin(libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES 
-('Preservatif' , 'nature' , 100 , 300 , 3);
 
 -- =========================================
 -- TABLE DON
