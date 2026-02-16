@@ -29,6 +29,7 @@ CREATE TABLE besoin(
     type_besoin ENUM('nature','materiaux','argent') NOT NULL,
     quantite INT NOT NULL,
     prix_unitaire DECIMAL(10,2) NOT NULL,
+    date_besoin TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_ville INT,
     FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
 );
@@ -41,6 +42,8 @@ INSERT INTO besoin (libelle_besoin, type_besoin, quantite, prix_unitaire, id_vil
 ('Médicaments', 'nature', 200, 3.50, 4),
 ('Ciment', 'materiaux', 1500, 0.80, 5);
 
+INSERT INTO besoin(libelle_besoin, type_besoin, quantite, prix_unitaire, id_ville) VALUES 
+('Preservatif' , 'nature' , 100 , 300 , 3);
 
 -- =========================================
 -- TABLE DON
@@ -50,13 +53,13 @@ CREATE TABLE don(
     libelle_don VARCHAR(255) NOT NULL,
     type_don ENUM('nature','materiaux','argent') NOT NULL,
     quantite INT NOT NULL,  
-    date_don DATE NOT NULL
+    date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO don (libelle_don, type_don, quantite, date_don) VALUES
 ('Don de riz - Association X', 'nature', 500, '2026-02-10'),
 ('Don de tôles - Entreprise Y', 'materiaux', 100, '2026-02-12'),
-('Don financier - Privé', 'ar       gent', 50000, '2026-02-14'),
+('Don financier - Privé', 'argent', 50000, '2026-02-14'),
 ('Don huile - ONG Z', 'nature', 300, '2026-02-15'),
 ('Don de clous - Magasin', 'materiaux', 3000, '2026-02-13'),
 ('Don financier - Collecte', 'argent', 75000, '2026-02-11'),
@@ -69,7 +72,7 @@ CREATE TABLE attribution(
     id_don INT,
     id_besoin INT,
     quantite INT NOT NULL,
-    date_attribution DATE NOT NULL,
+    date_attribution TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(id_don) REFERENCES don(id_don),
     FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin)
 );

@@ -48,7 +48,7 @@ class AllModels
 
     public function getAllBesoin()
     {
-        $stmt = $this->db->prepare("SELECT * FROM besoin");
+        $stmt = $this->db->prepare("SELECT * FROM besoin ORDER BY date_besoin ASC");
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
@@ -96,4 +96,5 @@ class AllModels
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['total'];
     }
+
 }
