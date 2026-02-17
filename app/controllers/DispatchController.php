@@ -63,7 +63,7 @@ class DispatchController
         $insertStatements = [];
         foreach ($tables as $table) {
             $insertStatements[$table] = [];
-            if (preg_match_all('/INSERT\s+INTO\s+' . $table . '\b[^;]*;/i', $content, $matches)) {
+            if (preg_match_all('/^[^-\n]*INSERT\s+INTO\s+' . $table . '\b.*?;/ims', $content, $matches)) {
                 $insertStatements[$table] = $matches[0];
             }
         }
