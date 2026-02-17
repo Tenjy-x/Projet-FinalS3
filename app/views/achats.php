@@ -2,7 +2,7 @@
 <div class="container-fluid" style="margin-top: 170px;">
     <div class="row mb-4">
             <div class="col-md-4">
-                <form method="GET" action="/achats">
+                <form method="GET" action="<?= BASE_URL ?>achats">
                     <div class="input-group">
                         <select name="id_ville" class="custom-select">
                             <option value="">Toutes les villes</option>

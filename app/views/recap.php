@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         content.style.opacity = '0.5';
 
         $.ajax({
-            url: '/api/recap',
+            url: '<?= BASE_URL ?>api/recap',
             method: 'GET',
             success: function(data) {
                 if (data.success) {

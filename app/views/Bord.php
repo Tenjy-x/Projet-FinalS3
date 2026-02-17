@@ -96,6 +96,8 @@
                             <th class="text-end">Reçu</th>
                             <th class="text-end">Reste</th>
                             <th class="text-center">Statut</th>
+                            <th class="text-center">Date de Besoins</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -136,6 +138,7 @@
                                     <?= $s['label'] ?>
                                 </span>
                             </td>
+                            <td class="text-center"><?= date('d/m/Y', strtotime($besoin['date_besoin'])) ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

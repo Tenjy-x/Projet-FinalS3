@@ -30,9 +30,7 @@ class BesoinController
             'page' => 'besoin',
             'villes' => $villes,
             'produits' => $produits,
-            'types' => $types,
-            'success' => $this->app->request()->query->success ?? null,
-            'error' => $this->app->request()->query->error ?? null
+            'types' => $types
         ]);
     }
 
@@ -41,6 +39,9 @@ class BesoinController
      */
     public function insertBesoin()
     {
+        $model = new AllModels($this->app->db());
+        $message = [];
+
         try {
             // Récupérer les données du formulaire
             $nom_produit = trim($this->app->request()->data->nom_produit ?? '');
@@ -51,38 +52,57 @@ class BesoinController
 
             // Validation basique
             if (empty($nom_produit) || $id_type <= 0 || $quantite <= 0 || $prix_unitaire <= 0 || empty($id_ville)) {
-                $this->app->redirect('/besoin?error=' . urlencode('Tous les champs sont obligatoires'));
-                return;
-            }
-
-            // Chercher ou créer le produit
-            $donModel = new \app\models\DonModel($this->app->db());
-            $produit = $donModel->findProduitByName($nom_produit);
-            if ($produit) {
-                $id_produit = $produit['id_produit'];
+                $message['error'] = 'Tous les champs sont obligatoires';
             } else {
-                $id_produit = $donModel->createProduit(ucfirst($nom_produit), $id_type);
-            }
+                // Chercher ou créer le produit
+                $donModel = new \app\models\DonModel($this->app->db());
+                $produit = $donModel->findProduitByName($nom_produit);
+                if ($produit) {
+                    $id_produit = $produit['id_produit'];
+                } else {
+                    $id_produit = $donModel->createProduit(ucfirst($nom_produit), $id_type);
+                }
 
-            // Préparer les données pour l'insertion
-            $data = [
-                (int) $id_produit,
-                (int) $quantite,
-                (float) $prix_unitaire,
-                (int) $id_ville
-            ];
+                // Préparer les données pour l'insertion
+                $data = [
+                    (int) $id_produit,
+                    (int) $quantite,
+                    (float) $prix_unitaire,
+                    (int) $id_ville
+                ];
 
-            // Insérer dans la base de données
-            $model = new AllModels($this->app->db());
-            $result = $model->insertBesoin($data);
+                // Insérer dans la base de données
+                $result = $model->insertBesoin($data);
 
-            if ($result) {
-                $this->app->redirect('/besoin?success=' . urlencode('Besoin ajouté avec succès'));
-            } else {
-                $this->app->redirect('/besoin?error=' . urlencode('Erreur lors de l\'ajout du besoin'));
+                if ($result) {
+                    $message['success'] = 'Besoin ajouté avec succès';
+                } else {
+                    $message['error'] = 'Erreur lors de l\'ajout du besoin';
+                }
             }
         } catch (\Exception $e) {
-            $this->app->redirect('/besoin?error=' . urlencode($e->getMessage()));
+            $message['error'] = $e->getMessage();
         }
+
+        // Recharger les données pour le formulaire et rendre la vue directement
+        $villes = $model->getAllVilles();
+        $produits = $model->getAllProduits();
+        $types = $model->getAllTypes();
+
+        $viewData = [
+            'page' => 'besoin',
+            'villes' => $villes,
+            'produits' => $produits,
+            'types' => $types
+        ];
+
+        if (isset($message['success'])) {
+            $viewData['success'] = $message['success'];
+        }
+        if (isset($message['error'])) {
+            $viewData['error'] = $message['error'];
+        }
+
+        $this->app->render('Modal', $viewData);
     }
 }

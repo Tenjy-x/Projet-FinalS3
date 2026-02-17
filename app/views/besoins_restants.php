@@ -24,7 +24,7 @@
     <!-- Filtre par ville -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <form method="GET" action="/besoins-restants">
+            <form method="GET" action="<?= BASE_URL ?>besoins-restants">
                 <div class="input-group">
                     <select name="id_ville" class="custom-select">
                         <option value="">Toutes les villes</option>
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         $.ajax({
-            url: '/api/achat/simuler',
+            url: '<?= BASE_URL ?>api/achat/simuler',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ id_don: idDon, id_besoin: idBesoin, quantite: parseInt(quantite) }),
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var quantite = $('#achat_quantite').val();
 
         $.ajax({
-            url: '/api/achat/valider',
+            url: '<?= BASE_URL ?>api/achat/valider',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ id_don: idDon, id_besoin: idBesoin, quantite: parseInt(quantite) }),
