@@ -18,9 +18,9 @@
  **********************************************/
 // Set your timezone (e.g., 'America/New_York', 'UTC')
 // BASE_URL fixe (projet servi à la racine)
-// define('BASE_URL', '/');
+define('BASE_URL', '/');
 // define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
-define('BASE_URL', '/ETU003920/Projet-FinalS3/');
+// define('BASE_URL', '/ETU003920/Projet-FinalS3/');
 
 date_default_timezone_set('UTC');
 
@@ -54,8 +54,8 @@ $ds = DIRECTORY_SEPARATOR;
 $app->path(__DIR__ . $ds . '..' . $ds . '..');
 
 // Core config variables
-$app->set('flight.base_url', '/ETU003920/Projet-FinalS3/');  
-// $app->set('flight.base_url', '/');           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
+// $app->set('flight.base_url', '/ETU003920/Projet-FinalS3/');  
+$app->set('flight.base_url', '/');           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
          // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
 $app->set('flight.case_sensitive', false);    // Set true for case sensitive routes. Default: false
 $app->set('flight.log_errors', true);         // Log errors to file. Recommended: true in production
@@ -77,15 +77,15 @@ return [
 	 **************************************/
 	'database' => [
 		// MySQL Example:
-		// 'host'     => '127.0.0.1',      // Database host (e.g., 'localhost', 'db.example.com')
-		// 'dbname'   => 'BNGRC',   // Database name (e.g., 'flightphp')
-		// 'user'     => 'root',  // Database user (e.g., 'root')
-		// 'password' => '',  // Database password (never commit real passwords)
+		'host'     => '127.0.0.1',      // Database host (e.g., 'localhost', 'db.example.com')
+		'dbname'   => 'BNGRC',   // Database name (e.g., 'flightphp')
+		'user'     => 'root',  // Database user (e.g., 'root')
+		'password' => '',  // Database password (never commit real passwords)
 
-		'host'     => 'localhost',      // Database host (e.g., 'localhost', 'db.example.com')
-		'dbname'   => 'db_s2_ETU003920',   // Database name (e.g., 'flightphp')
-		'user'     => 'ETU003920',  // Database user (e.g., 'root')
-		'password' => 'RFLeYjXJ', 		
+		// 'host'     => 'localhost',      // Database host (e.g., 'localhost', 'db.example.com')
+		// 'dbname'   => 'db_s2_ETU003920',   // Database name (e.g., 'flightphp')
+		// 'user'     => 'ETU003920',  // Database user (e.g., 'root')
+		// 'password' => 'RFLeYjXJ', 		
 		// SQLite Example:
 		// 'file_path' => __DIR__ . $ds . '..' . $ds . 'database.sqlite', // Path to SQLite file
 	],

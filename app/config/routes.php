@@ -81,6 +81,50 @@ $router->group('', function(Router $router) use ($app) {
 		]);
 	});	
 
+	$router->post('/reset-data', function() use ($app) {
+		$dispatchController = new DispatchController($app);
+		$dispatchController->resetData();
+		$controller = new StatsController();
+		
+		$dashboardData = $controller->getDashboardData();
+		$stats = $controller->getStatsGlobales();
+		$donsEnAttente = $controller->getDonsEnAttente();
+		$besoinsUrgents = $controller->getBesoinsUrgents(3);
+		
+		$villes = [];
+		foreach ($dashboardData as $row) {
+			$ville_id = $row['id_ville'];
+			if (!isset($villes[$ville_id])) {
+				$villes[$ville_id] = [
+					'id_ville' => $row['id_ville'],
+					'nom_ville' => $row['nom_ville'],
+					'besoins' => []
+				];
+			}
+			if ($row['quantite_recue'] == 0) {
+				$row['statut'] = 'urgent';
+			} elseif ($row['quantite_recue'] >= $row['quantite_besoin']) {
+				$row['statut'] = 'complet';
+			} else {
+				$row['statut'] = 'partiel';
+			}
+			$villes[$ville_id]['besoins'][] = $row;
+		}
+		
+		foreach ($villes as &$ville) {
+			foreach ($ville['besoins'] as &$besoin) {
+				$besoin['attributions'] = $controller->getAttributionsParBesoin($besoin['id_besoin']);
+			}
+		}
+		
+		$app->render('Modal', [ 
+			'page' => 'Bord',
+			'villes' => $villes,
+			'stats' => $stats,
+			'donsEnAttente' => $donsEnAttente,
+			'besoinsUrgents' => $besoinsUrgents
+		]);	});
+
 	$router->post('/dons', function() use ($app) {
 		$donController = new DonController();
 		$result = $donController->createDon();

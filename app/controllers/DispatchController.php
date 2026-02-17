@@ -30,6 +30,71 @@ class DispatchController
     }
 
     /**
+     * Réinitialise les données (ville, besoin, don, attribution) depuis v1.sql
+     */
+    public function resetData()
+    {
+        $db = $this->app->db();
+        $sqlPath = __DIR__ . '/../../base/sujet1_16/02/v1.sql';
+
+        if (!file_exists($sqlPath)) {
+            $this->app->halt(500, 'Fichier v1.sql introuvable');
+        }
+
+        $content = file_get_contents($sqlPath);
+        if ($content === false) {
+            $this->app->halt(500, 'Impossible de lire v1.sql');
+        }
+
+        $tables = ['type', 'produit', 'ville', 'besoin', 'don', 'config'];
+        $insertStatements = [];
+        foreach ($tables as $table) {
+            $insertStatements[$table] = [];
+            if (preg_match_all('/INSERT\s+INTO\s+' . $table . '\b[^;]*;/i', $content, $matches)) {
+                $insertStatements[$table] = $matches[0];
+            }
+        }
+
+        $hasInserts = false;
+        foreach ($insertStatements as $stmts) {
+            if (!empty($stmts)) {
+                $hasInserts = true;
+                break;
+            }
+        }
+        if (!$hasInserts) {
+            $this->app->halt(500, 'Aucune insertion trouvée dans v1.sql');
+        }
+
+        try {
+            $db->exec('SET FOREIGN_KEY_CHECKS=0');
+
+            // Supprimer toutes les données et réinitialiser les auto-incréments
+            // TRUNCATE remet l'auto-incrément à 1 automatiquement
+            $db->exec('TRUNCATE TABLE achat');
+            $db->exec('TRUNCATE TABLE attribution');
+            $db->exec('TRUNCATE TABLE don');
+            $db->exec('TRUNCATE TABLE besoin');
+            $db->exec('TRUNCATE TABLE ville');
+            $db->exec('TRUNCATE TABLE produit');
+            $db->exec('TRUNCATE TABLE type');
+            $db->exec('TRUNCATE TABLE config');
+
+            // Réinsérer dans l'ordre (type → produit → ville → besoin → don → config)
+            foreach ($tables as $table) {
+                foreach ($insertStatements[$table] as $stmt) {
+                    $db->exec($stmt);
+                }
+            }
+
+            $db->exec('SET FOREIGN_KEY_CHECKS=1');
+        } catch (\Throwable $e) {
+            $db->exec('SET FOREIGN_KEY_CHECKS=1');
+            $this->app->halt(500, 'Erreur reset: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Calcule le montant total avec frais d'achat
      * @param float $montant Montant de base
      * @return array ['montant' => montant de base, 'frais' => frais, 'total' => montant total]
