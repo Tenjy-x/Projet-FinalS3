@@ -65,17 +65,10 @@
         FOREIGN KEY(id_produit) REFERENCES produit(id_produit),
         FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
     );
-<<<<<<< HEAD
     INSERT INTO besoin (id_besoin, id_produit, quantite, prix_unitaire, date_besoin, id_ville) VALUES
     (1, 1, 1000, 1.50, '2026-02-13', 1),
     (2, 1, 500, 2.00, '2026-02-11', 3),
     (3, 1, 300, 5.00, '2026-02-12', 2);
-=======
-    INSERT INTO besoin (id_produit, quantite, prix_unitaire, date_besoin, id_ville) VALUES
-    (1, 1000, 1.50, '2026-02-10', 1),
-    (1, 500, 2.00, '2026-02-11', 1),
-    (3, 200, 5.00, '2026-02-12', 2);
->>>>>>> d3b5791 (modif kely)
 
     -- =========================================
     -- TABLE DON
@@ -89,14 +82,8 @@
         FOREIGN KEY(id_produit) REFERENCES produit(id_produit)
     );
 
-<<<<<<< HEAD
         INSERT INTO don (id_don, libelle_don, id_produit, quantite, date_don) VALUES
     (1, 'Don de riz - Association X', 1, 200, '2026-02-10');
-=======
-    INSERT INTO don (libelle_don, id_produit, quantite, date_don) VALUES
-    ('Don de riz - Association X', 1, 500, '2026-02-10'),
-    ('Don huile - ONG Z', 2, 300, '2026-02-15');
->>>>>>> d3b5791 (modif kely)
 
 
     -- =========================================

@@ -29,9 +29,7 @@ class DispatchController
         return $result;
     }
 
-    /**
-     * Dispatch par quantité : les plus petites quantités sont attribuées en premier
-     */
+
     public function dispatchParQuantite()
     {
         $model = new DispatchModel($this->app->db());
@@ -39,9 +37,32 @@ class DispatchController
         return $result;
     }
 
-    /**
-     * Réinitialise les données (ville, besoin, don, attribution) depuis v1.sql
-     */
+
+    public function dispatchProportionnel()
+    {
+        $db = $this->app->db();
+        $model = new DispatchModel($db);
+
+        $stmt = $db->prepare("SELECT id_don FROM don WHERE quantite > 0 ORDER BY date_don ASC, id_don ASC");
+        $stmt->execute();
+        $dons = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $totalAttributions = 0;
+        $totalQuantite = 0;
+
+        foreach ($dons as $don) {
+            $result = $model->dispatchProportional((int) $don['id_don']);
+            $totalAttributions += (int) $result['attributions'];
+            $totalQuantite += (int) $result['quantite'];
+        }
+
+        return [
+            'attributions' => $totalAttributions,
+            'quantite' => $totalQuantite
+        ];
+    }
+
+
     public function resetData()
     {
         $db = $this->app->db();

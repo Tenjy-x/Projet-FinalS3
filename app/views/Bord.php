@@ -7,6 +7,7 @@
             <p class="text-muted mb-3">Il faut toujours reinitialiser avant de Dispatch</p>
             <a href="<?= BASE_URL ?>dispatch" class="btn btn-primary">Dispatch (par date)</a>
             <a href="<?= BASE_URL ?>dispatchQuantite" class="btn btn-warning">Dispatch par plus petite quantite</a>
+            <a href="<?= BASE_URL ?>dispatchProportionnel" class="btn btn-info">Simulation proportionelle</a>
             <form action="reset-data" method="POST" class="d-inline-block ms-2" onsubmit="return confirm('Réinitialiser toutes les données ?');">
                 <button type="submit" class="btn btn-outline-danger">Réinitialiser données</button>
             </form>
