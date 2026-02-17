@@ -27,7 +27,7 @@
         id_type INT NOT NULL,
         FOREIGN KEY(id_type) REFERENCES type(id_type)
     );
-
+    
     INSERT INTO produit (nom_produit, id_type) VALUES
     ('Riz', 1),
     ('Huile', 1),
