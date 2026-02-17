@@ -80,7 +80,7 @@
                     <div class="navbar-nav ml-auto">
                         <a href="<?= BASE_URL ?>" class="nav-item nav-link active">Home</a>
                         <a href="<?= BASE_URL ?>bord" class="nav-item nav-link">Tableau de bords</a>
-                        <a href="causes.html" class="nav-item nav-link">Causes</a>
+                        <a href="<?= BASE_URL ?>achats" class="nav-item nav-link">Achats des produits</a>
                         <a href="event.html" class="nav-item nav-link">Events</a>
                         <a href="blog.html" class="nav-item nav-link">Blog</a>
                         <div class="nav-item dropdown">

@@ -275,4 +275,150 @@ class AllModels
         $stmt->execute([$jours]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    // ==============================
+    // ACHATS - Méthodes pour le module d'achats
+    // ==============================
+
+    /**
+     * Besoins restants (nature & matériaux), filtrables par ville
+     */
+    public function getBesoinsRestants(?int $idVille = null)
+    {
+        $sql = "SELECT b.id_besoin, p.nom_produit, t.nom_type, b.quantite, b.prix_unitaire,
+                    b.date_besoin, b.id_ville, v.nom_ville,
+                    (b.quantite - COALESCE((SELECT SUM(at.quantite) FROM attribution at WHERE at.id_besoin = b.id_besoin), 0)
+                                - COALESCE((SELECT SUM(ac.quantite) FROM achat ac WHERE ac.id_besoin = b.id_besoin), 0)) AS reste,
+                    ((b.quantite - COALESCE((SELECT SUM(at.quantite) FROM attribution at WHERE at.id_besoin = b.id_besoin), 0)
+                                 - COALESCE((SELECT SUM(ac.quantite) FROM achat ac WHERE ac.id_besoin = b.id_besoin), 0)) * b.prix_unitaire) AS montant_restant
+                FROM besoin b
+                JOIN ville v ON v.id_ville = b.id_ville
+                JOIN produit p ON p.id_produit = b.id_produit
+                JOIN type t ON t.id_type = p.id_type";
+        
+        $params = [];
+        if ($idVille !== null && $idVille > 0) {
+            $sql .= " WHERE b.id_ville = ?";
+            $params[] = $idVille;
+        }
+        $sql .= " HAVING reste > 0 ORDER BY v.nom_ville, p.nom_produit";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Dons en argent avec montants restants
+     */
+    public function getDonsArgentRestants()
+    {
+        $sql = "SELECT d.id_don, d.libelle_don, d.quantite AS montant_initial, d.date_don,
+                    COALESCE((SELECT SUM(ac.montant_total) FROM achat ac WHERE ac.id_don = d.id_don), 0) AS montant_utilise,
+                    (d.quantite - COALESCE((SELECT SUM(ac.montant_total) FROM achat ac WHERE ac.id_don = d.id_don), 0)) AS reste_argent
+                FROM don d
+                JOIN produit p ON p.id_produit = d.id_produit
+                JOIN type t ON t.id_type = p.id_type
+                WHERE t.nom_type = 'argent'
+                HAVING reste_argent > 0
+                ORDER BY d.date_don ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Lire le pourcentage de frais d'achat depuis la table config
+     */
+    public function getFraisConfig()
+    {
+        $stmt = $this->db->prepare("SELECT valeur_config FROM config WHERE cle_config = 'frais_achat'");
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ? (float) $result['valeur_config'] : 10.0;
+    }
+
+    /**
+     * Modifier le pourcentage de frais d'achat
+     */
+    public function setFraisConfig(float $frais)
+    {
+        $stmt = $this->db->prepare("INSERT INTO config (cle_config, valeur_config) VALUES ('frais_achat', ?) 
+                                     ON DUPLICATE KEY UPDATE valeur_config = ?");
+        return $stmt->execute([$frais, $frais]);
+    }
+
+    /**
+     * Montant restant d'un don en argent
+     */
+    public function getMontantRestantDon(int $idDon)
+    {
+        $sql = "SELECT d.quantite - COALESCE((SELECT SUM(ac.montant_total) FROM achat ac WHERE ac.id_don = d.id_don), 0) AS reste
+                FROM don d WHERE d.id_don = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$idDon]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ? (float) $result['reste'] : 0;
+    }
+
+    /**
+     * Vérifie si un don a assez d'argent pour un montant donné
+     */
+    public function verifierMontantSuffisant(int $idDon, float $montant)
+    {
+        return $this->getMontantRestantDon($idDon) >= $montant;
+    }
+
+    /**
+     * Créer un achat (utilisation d'un don argent pour acheter un besoin)
+     */
+    public function createAchat(int $idDon, int $idBesoin, int $quantite, float $montant, float $frais, float $montantTotal)
+    {
+        $sql = "INSERT INTO achat (id_don, id_besoin, quantite, montant, frais, montant_total) 
+                VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$idDon, $idBesoin, $quantite, $montant, $frais, $montantTotal]);
+    }
+
+    /**
+     * Récapitulatif global (total besoins, satisfait, restant)
+     */
+    public function getTotalSatisfait()
+    {
+        $sql = "SELECT 
+                    COALESCE(SUM(b.quantite * b.prix_unitaire), 0) AS montant_total,
+                    COALESCE(SUM(LEAST(COALESCE(a.qte_attr, 0) + COALESCE(ac.qte_achat, 0), b.quantite) * b.prix_unitaire), 0) AS montant_satisfait,
+                    COALESCE(SUM(GREATEST(b.quantite - COALESCE(a.qte_attr, 0) - COALESCE(ac.qte_achat, 0), 0) * b.prix_unitaire), 0) AS montant_restant
+                FROM besoin b
+                LEFT JOIN (SELECT id_besoin, SUM(quantite) AS qte_attr FROM attribution GROUP BY id_besoin) a ON a.id_besoin = b.id_besoin
+                LEFT JOIN (SELECT id_besoin, SUM(quantite) AS qte_achat FROM achat GROUP BY id_besoin) ac ON ac.id_besoin = b.id_besoin";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Historique des achats, filtrable par ville
+     */
+    public function getAchatsDetails(?int $idVille = null)
+    {
+        $sql = "SELECT ac.*, d.libelle_don, p.nom_produit, t.nom_type, b.prix_unitaire, v.id_ville, v.nom_ville
+                FROM achat ac
+                JOIN don d ON d.id_don = ac.id_don
+                JOIN besoin b ON b.id_besoin = ac.id_besoin
+                JOIN produit p ON p.id_produit = b.id_produit
+                JOIN type t ON t.id_type = p.id_type
+                JOIN ville v ON v.id_ville = b.id_ville";
+        
+        $params = [];
+        if ($idVille !== null && $idVille > 0) {
+            $sql .= " WHERE b.id_ville = ?";
+            $params[] = $idVille;
+        }
+        $sql .= " ORDER BY ac.date_achat DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

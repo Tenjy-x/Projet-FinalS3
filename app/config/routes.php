@@ -36,7 +36,7 @@ $router->group('', function(Router $router) use ($app) {
 	});
 
 	$router->get('/dispatch', function() use ($app) {
-		$dispatchController = new DispatchController();
+		$dispatchController = new DispatchController($app);
 		$dispatchController->dispatch();
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
 		$controller = new StatsController();
@@ -162,6 +162,16 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/besoins-restants', [ DispatchController::class, 'pageBesoinsRestants' ]);
 	$router->get('/recap', [ DispatchController::class, 'pageRecap' ]);
 	$router->get('/achats', [ DispatchController::class, 'pageAchats' ]);
+	
+	// Modifier les frais d'achat (depuis le modal besoins_restants)
+	$router->post('/achats/frais', function() use ($app) {
+		$model = new \app\models\Allmodels($app->db());
+		$frais = (float) ($app->request()->data->frais_achat ?? 10);
+		if ($frais >= 0 && $frais <= 100) {
+			$model->setFraisConfig($frais);
+		}
+		$app->redirect('/besoins-restants');
+	});
 	
 	// Page de configuration des frais
 	$router->get('/config-frais', [ DispatchController::class, 'pageConfigFrais' ]);

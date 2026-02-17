@@ -82,7 +82,7 @@
                 </div>
                 <div class="card-body">
                     <?php if (empty($besoins)): ?>
-                        <div class="alert alert-success">✅ Tous les besoins sont satisfaits !</div>
+                        <div class="alert alert-success">Tous les besoins sont satisfaits !</div>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
@@ -114,10 +114,11 @@
                                                 <td>
                                                     <button class="btn btn-sm btn-custom btn-acheter"
                                                         data-toggle="modal" data-target="#modalAchat"
-                                                        data-besoin-id="<?= $besoin['id_besoin'] ?>"
-                                                        data-besoin-libelle="<?= htmlspecialchars($besoin['nom_produit']) ?>"
-                                                        data-besoin-reste="<?= $besoin['reste'] ?>"
-                                                        data-besoin-prix="<?= $besoin['prix_unitaire'] ?>">
+                                                        data-id="<?= $besoin['id_besoin'] ?>"
+                                                        data-produit="<?= htmlspecialchars($besoin['nom_produit']) ?>"
+                                                        data-ville="<?= htmlspecialchars($besoin['nom_ville']) ?>"
+                                                        data-reste="<?= $besoin['reste'] ?>"
+                                                        data-prix="<?= $besoin['prix_unitaire'] ?>">
                                                         🛒 Acheter
                                                     </button>
                                                 </td>
@@ -136,7 +137,7 @@
     <!-- Boutons d'action -->
     <div class="row mt-4 mb-5">
         <div class="col-md-12 text-center">
-            <a href="/achats" class="btn btn-custom btn-lg">
+            <a href="<?=BASE_URL?>achats" class="btn btn-custom btn-lg">
                 Voir les Achats Effectués
             </a>
         </div>
@@ -185,9 +186,12 @@
                 <form id="formAchat">
                     <input type="hidden" id="achat_besoin_id" name="id_besoin">
 
-                    <div class="form-group">
-                        <label for="achat_besoin_libelle">Besoin</label>
-                        <input type="text" class="form-control" id="achat_besoin_libelle" readonly>
+                    <!-- Résumé du besoin sélectionné -->
+                    <div class="alert" style="background-color: #f8f9fa; border-left: 4px solid #FDBE33;">
+                        <h6 style="color: #4a4c70; margin-bottom: 5px;">Achat pour :</h6>
+                        <p class="mb-1"><strong id="achat_produit" style="font-size: 1.1em;"></strong></p>
+                        <p class="mb-1"><small>Ville : <span id="achat_ville"></span></small></p>
+                        <p class="mb-0"><small>Prix unitaire : <span id="achat_prix"></span> Ar &nbsp;|&nbsp; Qté restante : <strong id="achat_reste_info"></strong></small></p>
                     </div>
 
                     <div class="form-group">
@@ -213,24 +217,33 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-custom" id="btnSimuler">🔍 Simuler</button>
-                <button type="button" class="btn" id="btnValider" style="background-color: #28a745; color: #fff; border: 2px solid #28a745;" disabled>✅ Valider l'Achat</button>
+                <button type="button" class="btn btn-custom" id="btnSimuler">Simuler</button>
+                <button type="button" class="btn" id="btnValider" style="background-color: #28a745; color: #fff; border: 2px solid #28a745;" disabled>Valider l'Achat</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     var simulationReussie = false;
 
     // Remplir les champs du modal d'achat à l'ouverture
     $('#modalAchat').on('show.bs.modal', function(e) {
         var btn = $(e.relatedTarget);
         if (btn.hasClass('btn-acheter')) {
-            $('#achat_besoin_id').val(btn.data('besoin-id'));
-            $('#achat_besoin_libelle').val(btn.data('besoin-libelle'));
-            $('#achat_max_quantite').text(btn.data('besoin-reste'));
-            $('#achat_quantite').attr('max', btn.data('besoin-reste'));
+            var produit = btn.attr('data-produit');
+            var ville = btn.attr('data-ville');
+            var reste = btn.attr('data-reste');
+            var prix = btn.attr('data-prix');
+
+            $('#achat_besoin_id').val(btn.attr('data-id'));
+            $('#achat_produit').text(produit);
+            $('#achat_ville').text(ville);
+            $('#achat_prix').text(parseFloat(prix).toLocaleString('fr-FR', {minimumFractionDigits: 2}));
+            $('#achat_reste_info').text(reste);
+            $('#achat_max_quantite').text(reste);
+            $('#achat_quantite').attr('max', reste);
             $('#achat_quantite').val(1);
             $('#simulationResult').hide();
             $('#btnValider').prop('disabled', true);
@@ -253,7 +266,7 @@
             url: '/api/achat/simuler',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ id_don: idDon, id_besoin: idBesoin, quantite: quantite }),
+            data: JSON.stringify({ id_don: idDon, id_besoin: idBesoin, quantite: parseInt(quantite) }),
             success: function(data) {
                 var resultDiv = $('#simulationResult');
                 if (data.success) {
@@ -261,7 +274,7 @@
                     $('#btnValider').prop('disabled', false);
                     resultDiv.removeClass('alert-danger alert-info').addClass('alert-success');
                     resultDiv.html(
-                        '<h6> Simulation Réussie</h6>' +
+                        '<h6>Simulation Réussie</h6>' +
                         '<p><strong>Besoin:</strong> ' + data.simulation.besoin + ' (' + data.simulation.ville + ')</p>' +
                         '<p><strong>Quantité:</strong> ' + data.simulation.quantite + '</p>' +
                         '<p><strong>Montant de base:</strong> ' + data.simulation.montant_base + ' Ar</p>' +
@@ -273,7 +286,7 @@
                     simulationReussie = false;
                     $('#btnValider').prop('disabled', true);
                     resultDiv.removeClass('alert-success alert-info').addClass('alert-danger');
-                    resultDiv.html('<strong> Erreur:</strong> ' + data.error);
+                    resultDiv.html('<strong>Erreur:</strong> ' + data.error);
                 }
                 resultDiv.show();
             },
@@ -299,10 +312,10 @@
             url: '/api/achat/valider',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ id_don: idDon, id_besoin: idBesoin, quantite: quantite }),
+            data: JSON.stringify({ id_don: idDon, id_besoin: idBesoin, quantite: parseInt(quantite) }),
             success: function(data) {
                 if (data.success) {
-                    alert('succees ' + data.message);
+                    alert('Succès: ' + data.message);
                     window.location.reload();
                 } else {
                     alert('Erreur: ' + data.error);
@@ -313,4 +326,5 @@
             }
         });
     });
+});
 </script>

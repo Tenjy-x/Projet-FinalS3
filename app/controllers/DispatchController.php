@@ -10,14 +10,14 @@ class DispatchController
 {
     protected Engine $app;
 
-    // public function __construct(Engine $app)
-    // {
-    //     $this->app = $app;
-    // }
+    public function __construct(Engine $app)
+    {
+        $this->app = $app;
+    }
 
     public function dispatch()
     {
-        $model = new DispatchModel(Flight::db());
+        $model = new DispatchModel($this->app->db());
         $result = $model->dispatchDons();
 
         // $this->app->json([
@@ -239,7 +239,7 @@ class DispatchController
             }
 
             // Enregistrer l'achat
-            $success = $model->createAttribution(
+            $success = $model->createAchat(
                 $idDon,
                 $idBesoin,
                 $quantite,
@@ -318,6 +318,7 @@ class DispatchController
         $model = new Allmodels($this->app->db());
         
         $idVille = $this->app->request()->query->id_ville ?? null;
+        $idVille = ($idVille !== '' && $idVille !== null) ? (int) $idVille : null;
         $besoins = $model->getBesoinsRestants($idVille);
         $donsArgent = $model->getDonsArgentRestants();
         $villes = $model->getAllVilles();
@@ -357,6 +358,7 @@ class DispatchController
         $model = new Allmodels($this->app->db());
         
         $idVille = $this->app->request()->query->id_ville ?? null;
+        $idVille = ($idVille !== '' && $idVille !== null) ? (int) $idVille : null;
         $achats = $model->getAchatsDetails($idVille);
         $villes = $model->getAllVilles();
 

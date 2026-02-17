@@ -102,6 +102,32 @@
         );
 
     -- =========================================
+    -- TABLE CONFIG
+    -- =========================================
+    CREATE TABLE config(
+        cle_config VARCHAR(50) PRIMARY KEY,
+        valeur_config VARCHAR(255) NOT NULL
+    );
+
+    INSERT INTO config (cle_config, valeur_config) VALUES ('frais_achat', '10');
+
+    -- =========================================
+    -- TABLE ACHAT
+    -- =========================================
+    CREATE TABLE achat(
+        id_achat INT PRIMARY KEY AUTO_INCREMENT,
+        id_besoin INT NOT NULL,
+        id_don INT NOT NULL,
+        quantite INT NOT NULL,
+        montant DECIMAL(15,2) NOT NULL,
+        frais DECIMAL(15,2) NOT NULL DEFAULT 0,
+        montant_total DECIMAL(15,2) NOT NULL,
+        date_achat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(id_besoin) REFERENCES besoin(id_besoin),
+        FOREIGN KEY(id_don) REFERENCES don(id_don)
+    );
+
+    -- =========================================
     -- VIEW VILLE_BESOIN
     -- =========================================
     CREATE OR REPLACE VIEW v_villeBesoin AS
@@ -143,8 +169,89 @@
     JOIN type tb ON tb.id_type = pb.id_type
     JOIN type td ON td.id_type = pd.id_type;
 
+-- =========================================
+    -- VUES DE V2
+    -- =========================================
+CREATE OR REPLACE VIEW v_besoins_restants AS
+SELECT 
+    b.id_besoin,
+    p.nom_produit,
+    t.nom_type,
+    b.quantite,
+    b.prix_unitaire,
+    b.date_besoin,
+    b.id_ville,
+    v.nom_ville,
+    (b.quantite - IFNULL(SUM(a.quantite), 0) - IFNULL(SUM(ac.quantite), 0)) AS reste,
+    (b.quantite * b.prix_unitaire) AS montant_total,
+    ((b.quantite - IFNULL(SUM(a.quantite), 0) - IFNULL(SUM(ac.quantite), 0)) * b.prix_unitaire) AS montant_restant,
+    (IFNULL(SUM(a.quantite), 0) + IFNULL(SUM(ac.quantite), 0)) AS quantite_satisfaite
+FROM besoin b
+INNER JOIN ville v ON v.id_ville = b.id_ville
+INNER JOIN produit p ON p.id_produit = b.id_produit
+INNER JOIN type t ON t.id_type = p.id_type
+LEFT JOIN attribution a ON a.id_besoin = b.id_besoin
+LEFT JOIN achat ac ON ac.id_besoin = b.id_besoin
+GROUP BY b.id_besoin, p.nom_produit, t.nom_type, b.quantite, b.prix_unitaire, 
+         b.date_besoin, b.id_ville, v.nom_ville;
 
+-- Vue des dons en argent avec montants restants
+CREATE OR REPLACE VIEW v_dons_argent_restants AS
+SELECT 
+    d.id_don,
+    d.libelle_don,
+    d.quantite AS montant_initial,
+    d.date_don,
+    IFNULL(SUM(ac.montant_total), 0) AS montant_utilise,
+    (d.quantite - IFNULL(SUM(ac.montant_total), 0)) AS reste_argent
+FROM don d
+LEFT JOIN achat ac ON ac.id_don = d.id_don
+INNER JOIN produit p ON p.id_produit = d.id_produit
+INNER JOIN type t ON t.id_type = p.id_type
+WHERE t.nom_type = 'argent'
+GROUP BY d.id_don, d.libelle_don, d.quantite, d.date_don;
 
+-- Vue du récapitulatif global
+CREATE OR REPLACE VIEW v_recap_global AS
+SELECT 
+    SUM(b.quantite * b.prix_unitaire) AS montant_total,
+    SUM((IFNULL(a.quantite_attribuee, 0) + IFNULL(ac.quantite_achetee, 0)) * b.prix_unitaire) AS montant_satisfait,
+    SUM((b.quantite - IFNULL(a.quantite_attribuee, 0) - IFNULL(ac.quantite_achetee, 0)) * b.prix_unitaire) AS montant_restant
+FROM besoin b
+LEFT JOIN (
+    SELECT id_besoin, SUM(quantite) AS quantite_attribuee
+    FROM attribution
+    GROUP BY id_besoin
+) a ON a.id_besoin = b.id_besoin
+LEFT JOIN (
+    SELECT id_besoin, SUM(quantite) AS quantite_achetee
+    FROM achat
+    GROUP BY id_besoin
+) ac ON ac.id_besoin = b.id_besoin;
+
+-- Vue des achats avec détails
+CREATE OR REPLACE VIEW v_achats_details AS
+SELECT 
+    ac.id_achat,
+    ac.id_don,
+    ac.id_besoin,
+    ac.quantite,
+    ac.montant,
+    ac.frais,
+    ac.montant_total,
+    ac.date_achat,
+    d.libelle_don,
+    p.nom_produit,
+    t.nom_type,
+    b.prix_unitaire,
+    v.id_ville,
+    v.nom_ville
+FROM achat ac
+INNER JOIN don d ON d.id_don = ac.id_don
+INNER JOIN besoin b ON b.id_besoin = ac.id_besoin
+INNER JOIN produit p ON p.id_produit = b.id_produit
+INNER JOIN type t ON t.id_type = p.id_type
+INNER JOIN ville v ON v.id_ville = b.id_ville;
 
 
 

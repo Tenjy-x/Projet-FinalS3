@@ -125,10 +125,10 @@
     <!-- Boutons d'action -->
     <div class="row mt-4 mb-5">
         <div class="col-md-12 text-center">
-            <a href="/besoins-restants" class="btn btn-custom btn-lg">
+            <a href="<?=BASE_URL?>besoins-restants" class="btn btn-custom btn-lg">
                 Effectuer un Nouvel Achat
             </a>
-            <a href="/recap" class="btn btn-custom btn-lg" style="margin-left: 10px;">
+            <a href="<?=BASE_URL?>recap" class="btn btn-custom btn-lg" style="margin-left: 10px;">
                 Voir le Récapitulatif
             </a>
         </div>
