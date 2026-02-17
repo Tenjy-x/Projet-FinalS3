@@ -250,7 +250,7 @@ FROM achat ac
 INNER JOIN don d ON d.id_don = ac.id_don
 INNER JOIN besoin b ON b.id_besoin = ac.id_besoin
 INNER JOIN produit p ON p.id_produit = b.id_produit
-INNER JOIN type t ON t.id_type = p.id_type
+INNER JOIN type t ON t.id _type = p.id_type
 INNER JOIN ville v ON v.id_ville = b.id_ville;
 
 
