@@ -38,6 +38,12 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/dispatch', function() use ($app) {
 		$dispatchController = new DispatchController($app);
 		$dispatchController->dispatch();
+		$app->redirect('/bord');
+	});
+
+	$router->get('/dispatch-quantite', function() use ($app) {
+		$dispatchController = new DispatchController($app);
+		$dispatchController->dispatchParQuantite();
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet
 		$controller = new StatsController();
 		

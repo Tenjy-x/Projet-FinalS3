@@ -30,6 +30,16 @@ class DispatchController
     }
 
     /**
+     * Dispatch par quantité : les plus petites quantités sont attribuées en premier
+     */
+    public function dispatchParQuantite()
+    {
+        $model = new DispatchModel($this->app->db());
+        $result = $model->dispatchParQuantite();
+        return $result;
+    }
+
+    /**
      * Réinitialise les données (ville, besoin, don, attribution) depuis v1.sql
      */
     public function resetData()
@@ -45,6 +55,9 @@ class DispatchController
         if ($content === false) {
             $this->app->halt(500, 'Impossible de lire v1.sql');
         }
+
+        // Supprimer les lignes commentées (-- ...) avant d'extraire les INSERT
+        $cleanContent = preg_replace('/^\s*--.*$/m', '', $content);
 
         $tables = ['type', 'produit', 'ville', 'besoin', 'don', 'config'];
         $insertStatements = [];

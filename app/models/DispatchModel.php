@@ -122,6 +122,87 @@ class DispatchModel
         }
     }
 
+    /**
+     * Dispatch par quantité : plus petite quantité en premier
+     * Les dons et besoins sont triés par quantité croissante
+     */
+    public function dispatchParQuantite()
+    {
+        $this->db->beginTransaction();
+        try {
+            // Dons triés par quantité croissante (les plus petits d'abord)
+            $sqlDons = "SELECT d.*, p.nom_produit, p.id_type, t.nom_type, d.quantite AS reste
+                        FROM don d
+                        JOIN produit p ON p.id_produit = d.id_produit
+                        JOIN type t ON t.id_type = p.id_type
+                        WHERE d.quantite > 0
+                        ORDER BY d.quantite ASC, d.date_don ASC";
+            $stmt = $this->db->prepare($sqlDons);
+            $stmt->execute();
+            $dons = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // Besoins triés par quantité croissante (les plus petits d'abord)
+            $sqlBesoins = "SELECT b.*, p.nom_produit, p.id_type, t.nom_type, b.quantite AS reste
+                           FROM besoin b
+                           JOIN produit p ON p.id_produit = b.id_produit
+                           JOIN type t ON t.id_type = p.id_type
+                           WHERE b.quantite > 0
+                           ORDER BY b.quantite ASC, b.date_besoin ASC";
+            $stmt = $this->db->prepare($sqlBesoins);
+            $stmt->execute();
+            $besoins = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $totalAttributions = 0;
+            $totalQuantite = 0;
+
+            foreach ($dons as $don) {
+                $resteDon = (int) $don['reste'];
+                if ($resteDon <= 0) {
+                    continue;
+                }
+
+                foreach ($besoins as $index => $besoin) {
+                    if ($resteDon <= 0) {
+                        break;
+                    }
+                    // Même produit uniquement
+                    if ((int) $besoin['id_produit'] !== (int) $don['id_produit']) {
+                        continue;
+                    }
+
+                    $resteBesoin = (int) $besoin['reste'];
+                    if ($resteBesoin <= 0) {
+                        continue;
+                    }
+
+                    $quantiteAttribuee = min($resteDon, $resteBesoin);
+                    if ($quantiteAttribuee <= 0) {
+                        continue;
+                    }
+
+                    $this->createAttribution($don['id_don'], $besoin['id_besoin'], $quantiteAttribuee);
+                    $this->updateDonQuantite($don['id_don'], $quantiteAttribuee);
+                    $this->updateBesoinQuantite($besoin['id_besoin'], $quantiteAttribuee);
+
+                    $resteDon -= $quantiteAttribuee;
+                    $besoins[$index]['reste'] = $resteBesoin - $quantiteAttribuee;
+
+                    $totalAttributions += 1;
+                    $totalQuantite += $quantiteAttribuee;
+                }
+            }
+
+            $this->db->commit();
+            return [
+                'attributions' => $totalAttributions,
+                'quantite' => $totalQuantite
+            ];
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
     // public function getAllVilles()
     // {
     //     $stmt = $this->db->prepare("SELECT * FROM ville");

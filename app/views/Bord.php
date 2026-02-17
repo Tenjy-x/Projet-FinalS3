@@ -4,7 +4,8 @@
         <div class="col-12 text-center">
             <h2 class="mb-1">Tableau de bord</h2>
             <p class="text-muted mb-3">Liste des villes, besoins et dons attribués</p>
-            <a href="<?= BASE_URL ?>dispatch" class="btn btn-primary">Lancer le dispatch</a>
+            <a href="<?= BASE_URL ?>dispatch" class="btn btn-primary">Dispatch (par date)</a>
+            <a href="<?= BASE_URL ?>dispatch-quantite" class="btn btn-warning">Dispatch par plus petite quantite</a>
             <form action="reset-data" method="POST" class="d-inline-block ms-2" onsubmit="return confirm('Réinitialiser toutes les données ?');">
                 <button type="submit" class="btn btn-outline-danger">Réinitialiser données</button>
             </form>
