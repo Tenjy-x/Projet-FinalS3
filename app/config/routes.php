@@ -38,10 +38,50 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/dispatch', function() use ($app) {
 		$dispatchController = new DispatchController($app);
 		$dispatchController->dispatch();
-		$app->redirect('/bord');
+		$controller = new StatsController();
+		
+		$dashboardData = $controller->getDashboardData();
+		$stats = $controller->getStatsGlobales();
+		$donsEnAttente = $controller->getDonsEnAttente();
+		$besoinsUrgents = $controller->getBesoinsUrgents(3);
+		
+		$villes = [];
+		foreach ($dashboardData as $row) {
+			$ville_id = $row['id_ville'];
+			if (!isset($villes[$ville_id])) {
+				$villes[$ville_id] = [
+					'id_ville' => $row['id_ville'],
+					'nom_ville' => $row['nom_ville'],
+					'besoins' => []
+				];
+			}
+			if ($row['quantite_recue'] == 0) {
+				$row['statut'] = 'urgent';
+			} elseif ($row['quantite_recue'] >= $row['quantite_besoin']) {
+				$row['statut'] = 'complet';
+			} else {
+				$row['statut'] = 'partiel';
+			}
+			$villes[$ville_id]['besoins'][] = $row;
+		}
+		
+		foreach ($villes as &$ville) {
+			foreach ($ville['besoins'] as &$besoin) {
+				$besoin['attributions'] = $controller->getAttributionsParBesoin($besoin['id_besoin']);
+			}
+		}
+		
+		$app->render('Modal', [ 
+			'page' => 'Bord',
+			'villes' => $villes,
+			'stats' => $stats,
+			'donsEnAttente' => $donsEnAttente,
+			'besoinsUrgents' => $besoinsUrgents
+		]);
+
 	});
 
-	$router->get('/dispatch-quantite', function() use ($app) {
+	$router->get('/dispatchQuantite', function() use ($app) {
 		$dispatchController = new DispatchController($app);
 		$dispatchController->dispatchParQuantite();
 		// Une fois le dispatch effectué, on revient sur le tableau de bord complet

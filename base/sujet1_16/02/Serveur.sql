@@ -1,14 +1,14 @@
-    -- =========================================
-    -- SUPPRESSION ET CREATION DE LA BASE
-    -- =========================================
-    DROP DATABASE IF EXISTS BNGRC;
-    CREATE DATABASE BNGRC;
-    USE BNGRC;
+DROP TABLE achat;
+DROP TABLE config;
+DROP TABLE attribution;
+DROP TABLE don;
+DROP TABLE besoin;
+DROP TABLE ville;
+DROP TABLE produit;
+DROP TABLE type;
 
-    -- =========================================
-    -- TABLE TYPE
-    -- =========================================
-    CREATE TABLE type(
+
+CREATE TABLE type(
         id_type INT PRIMARY KEY AUTO_INCREMENT,
         nom_type VARCHAR(50) NOT NULL
     );

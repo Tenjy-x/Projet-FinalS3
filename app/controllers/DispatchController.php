@@ -82,16 +82,25 @@ class DispatchController
         try {
             $db->exec('SET FOREIGN_KEY_CHECKS=0');
 
-            // Supprimer toutes les données et réinitialiser les auto-incréments
-            // TRUNCATE remet l'auto-incrément à 1 automatiquement
-            $db->exec('TRUNCATE TABLE achat');
-            $db->exec('TRUNCATE TABLE attribution');
-            $db->exec('TRUNCATE TABLE don');
-            $db->exec('TRUNCATE TABLE besoin');
-            $db->exec('TRUNCATE TABLE ville');
-            $db->exec('TRUNCATE TABLE produit');
-            $db->exec('TRUNCATE TABLE type');
-            $db->exec('TRUNCATE TABLE config');
+            // Supprimer toutes les données
+            $db->exec('DELETE FROM achat');
+            $db->exec('DELETE FROM attribution');
+            $db->exec('DELETE FROM don');
+            $db->exec('DELETE FROM besoin');
+            $db->exec('DELETE FROM ville');
+            $db->exec('DELETE FROM produit');
+            $db->exec('DELETE FROM type');
+            $db->exec('DELETE FROM config');
+
+            // Réinitialiser les auto-incréments (ignorer si pas autorisé)
+            $resetTables = ['achat', 'attribution', 'don', 'besoin', 'ville', 'produit', 'type'];
+            foreach ($resetTables as $t) {
+                try {
+                    $db->exec("ALTER TABLE {$t} AUTO_INCREMENT = 1");
+                } catch (\Throwable $ignore) {
+                    // Certains serveurs n'autorisent pas ALTER TABLE
+                }
+            }
 
             // Réinsérer dans l'ordre (type → produit → ville → besoin → don → config)
             foreach ($tables as $table) {
